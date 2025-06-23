@@ -1,9 +1,9 @@
 import React from "react";
 import styled from "styled-components";
 
-function IconButton ({onClick, children, iconSize=24}) {
+function IconButton ({onClick, children, size=24}) {
     return (
-        <Button $iconSize={iconSize} onClick={onClick}>
+        <Button $size={size} onClick={onClick}>
             {children}
         </Button>
     )
@@ -14,9 +14,10 @@ const Button = styled.div`
     cursor: pointer;
     display: flex;
     align-items: center;
+    
     & > svg {
-        width: ${props => props.$iconSize}px;
-        height: ${props => props.$iconSize}px;
+        width: ${props => props.$size}px;
+        height: ${props => props.$size}px;
     }
 `
 export default IconButton

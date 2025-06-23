@@ -1,10 +1,10 @@
-import React, { useState } from 'react'
+import React from 'react'
 import styled from 'styled-components'
 import Sidebar from 'components/Sidebar'
 import Contents from 'components/Contents'
-import { useStyleStore } from 'stores/styleStore'
+import { useStyleStore } from 'stores/useStyleStore'
 
-function Main () {
+function Home () {
     const { openSidebar } = useStyleStore()
 
     return (
@@ -23,4 +23,4 @@ const Container = styled.div`
     overflow: hidden;
     padding: 1rem;
 `
-export default Main
+export default Home

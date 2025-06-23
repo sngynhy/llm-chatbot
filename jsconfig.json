@@ -8,7 +8,8 @@
             "style/": ["style/*"],
             "api/": ["api/*"],
             "stores/": ["stores/*"],
-            "utils/": ["utils/*"]
+            "utils/": ["utils/*"],
+            "context/": ["context/*"],
         }
     },
     "include": [

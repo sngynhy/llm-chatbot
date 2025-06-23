@@ -1,42 +1,71 @@
-import React, { useState } from 'react'
+import React, { useEffect, useMemo, useState } from 'react'
+import { Link, useMatch, useNavigate } from 'react-router-dom';
 import styled from 'styled-components'
 import logo from 'assets/logo.png'
 import { LuCopyPlus } from "react-icons/lu";
-import { IoSearch } from "react-icons/io5";
 import { GoStack } from "react-icons/go";
-import { FaAnglesLeft, FaAnglesRight } from "react-icons/fa6";
 import { LuChartSpline } from "react-icons/lu";
+import { TbLayoutSidebarLeftCollapse } from "react-icons/tb";
 import { RiDeleteBinLine } from "react-icons/ri";
-import { TbLayoutSidebarLeftExpand } from "react-icons/tb";
+import { HiOutlineDotsHorizontal } from "react-icons/hi";
+import { CgMathPlus } from "react-icons/cg";
 import IconButton from 'components/ui/IconButton';
-import { useStyleStore } from 'stores/styleStore';
+import { useStyleStore } from 'stores/useStyleStore';
+import { useHistoryStore } from 'stores/useHistoryStore';
 
 function Sidebar () {
     const [visibleHistory, setVisibleHistory] = useState(true)
     const { openSidebar, setOpenSidebar } = useStyleStore()
+    const { currentSessionId, setCurrentSessionId, history, deleteSession } = useHistoryStore()
+
+    const newChatMatch = useMatch('/')
+    const graphMatch = useMatch('/graph')
+    const historyMatch = useMatch('/history/:initial/:id')
+    
+    const historySummary = useMemo(() => {
+        return Object.values(history)
+                    .sort((a, b) => a.sessionId - b.sessionId)
+                    .map(({ sessionId, title }) => ({
+                        id: sessionId,
+                        title,
+                    }))
+    }, [history])
+
+    const navigate = useNavigate();
+    const removeChatSession = (id) => {
+        deleteSession(id)
+        navigate('/')
+    }
 
     return (
         <div>
             <Aside $openSidebar={openSidebar}>
                 <div className="header">
-                    <a href="/main" className="logo">
+                    <Link to="/">
                         <img src={logo} alt="로고 아이콘" />
+                    </Link>
+                    <IconButton onClick={() => setOpenSidebar(false)}><TbLayoutSidebarLeftCollapse /></IconButton>
+                </div>
+                <Ul style={styles.ul}>
+                    <Link to='/'><List $selected={Boolean(newChatMatch)}><IconButton size={20}><LuCopyPlus /></IconButton>새 질문</List></Link>
+                    <Link to='/graph'><List $selected={Boolean(graphMatch)}><IconButton size={20}><LuChartSpline /></IconButton>그래프 그리기</List></Link>
+                    {/* <li><IoSearch />채팅 검색</li> */}
+                    <a href="undefined" onClick={(e) => {e.preventDefault(); history?.length > 0 && setVisibleHistory(prev => !prev);}}>
+                        <List $selected={Boolean(historyMatch)}><IconButton size={20}><GoStack /></IconButton>질문 내역</List>
                     </a>
-                    <IconButton onClick={() => setOpenSidebar(false)}><TbLayoutSidebarLeftExpand /></IconButton>
-                </div>
-                <div>
-                    <ul style={styles.ul}>
-                        <li><LuCopyPlus />질문하기</li>
-                        <li><LuChartSpline />그래프 그리기</li>
-                        {/* <li><IoSearch />채팅 검색</li> */}
-                        <li onClick={() => setVisibleHistory(prev => !prev)}><GoStack />질문 내역</li>
-                        {visibleHistory && <ul style={styles.ul}>
-                            <li style={{paddingLeft: '40px'}}>질문1</li>
-                            <li style={{paddingLeft: '40px'}}>질문1</li>
-                            <li style={{paddingLeft: '40px'}}>질문1</li>
-                        </ul>}
-                    </ul>
-                </div>
+                    {visibleHistory && <Ul style={styles.ul}>
+                        {historySummary?.map(item => {
+                            return (
+                                <List key={item.id} $selected={Boolean(historyMatch) && currentSessionId === item.id} style={styles.li}>
+                                    <Link to={`/history/0/${item.id}`} onClick={() => setCurrentSessionId(item.id)}>
+                                        <div>{item.title}</div>
+                                    </Link>
+                                    <IconButton size={20} onClick={() => removeChatSession(item.id)}><CgMathPlus style={{transform: 'rotate(45deg)'}}/></IconButton>
+                                </List>
+                            )
+                        })}
+                    </Ul>}
+                </Ul>
             </Aside>
         </div>
     )
@@ -49,6 +78,14 @@ const styles = {
         listStyle: 'none',
         cursor: 'pointer',
         padding: 0
+    },
+    li: {
+        padding: '12px 20px',
+        fontSize: '14px',
+        height: 'auto',
+        display: 'flex',
+        justifyContent: 'space-between',
+        width: 'calc(100% - 40px)'
     }
 }
 
@@ -77,22 +114,35 @@ const Aside = styled.aside`
             height: 3rem;
         }
     }
+`
+const Ul = styled.ul`
+    & > a {
+        text-decoration: none;
+        display: flex;
+        gap: 8px;
 
-    & > div > ul {
-        & > li {
-            padding: 12px 10px;
-            border-radius: 12px;
-            display: flex;
-            gap: 8px;
-
-            & > svg {
-                width: 20px;
-                height: 20px;
-            }
+        & > svg {
+            width: 20px;
+            height: 20px;
         }
+    }
+`
+
+const List = styled.li`
+    padding: 12px 10px;
+    border-radius: 12px;
+    display: flex;
+    gap: 8px;
+    color: ${props => props.$selected ? 'black' : 'rgb(59, 59, 59)'};
+    width: 100%;
+    ${props => props.$selected && 'font-weight: 500;'}
         
-        & > li:hover {
-            background-color: #f3f5f7; // #f7f7f7;
-        }
+    &:hover {
+        background-color: #f3f5f7; // #f7f7f7;
+    }
+
+    & > a {
+        color: ${props => props.$selected ? 'black' : 'rgb(59, 59, 59)'};
+        text-decoration: none;
     }
 `
