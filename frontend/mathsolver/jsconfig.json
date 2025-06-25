@@ -9,7 +9,7 @@
             "api/": ["api/*"],
             "stores/": ["stores/*"],
             "utils/": ["utils/*"],
-            "context/": ["context/*"],
+            "context/": ["context/*"]
         }
     },
     "include": [

@@ -7,11 +7,11 @@ import { TbLayoutSidebarLeftExpand } from "react-icons/tb";
 import Router from 'router'
 import { Link } from 'react-router-dom';
 
-function Contents () {
+function Content () {
     const { openSidebar, setOpenSidebar } = useStyleStore()
 
     return (
-        <Container>
+        <Container id="content">
             {!openSidebar && <div id="header">
                 <IconButton onClick={() => setOpenSidebar(true)}><TbLayoutSidebarLeftExpand /></IconButton>
                 <Link to='/'><IconButton><LuCopyPlus /></IconButton></Link>
@@ -21,7 +21,7 @@ function Contents () {
     )
 }
 
-export default Contents
+export default Content
 
 const Container = styled.div`
     margin-left: 0;

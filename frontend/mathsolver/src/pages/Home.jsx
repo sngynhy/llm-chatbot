@@ -1,7 +1,7 @@
 import React from 'react'
 import styled from 'styled-components'
 import Sidebar from 'components/Sidebar'
-import Contents from 'components/Contents'
+import Content from 'components/Content'
 import { useStyleStore } from 'stores/useStyleStore'
 
 function Home () {
@@ -10,7 +10,7 @@ function Home () {
     return (
         <Container $openSidebar={openSidebar}>
             <Sidebar />
-            <Contents />
+            <Content />
         </Container>
     )
 }

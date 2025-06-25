@@ -6,8 +6,6 @@ import { LuCopyPlus } from "react-icons/lu";
 import { GoStack } from "react-icons/go";
 import { LuChartSpline } from "react-icons/lu";
 import { TbLayoutSidebarLeftCollapse } from "react-icons/tb";
-import { RiDeleteBinLine } from "react-icons/ri";
-import { HiOutlineDotsHorizontal } from "react-icons/hi";
 import { CgMathPlus } from "react-icons/cg";
 import IconButton from 'components/ui/IconButton';
 import { useStyleStore } from 'stores/useStyleStore';
@@ -38,36 +36,44 @@ function Sidebar () {
     }
 
     return (
-        <div>
-            <Aside $openSidebar={openSidebar}>
-                <div className="header">
-                    <Link to="/">
-                        <img src={logo} alt="로고 아이콘" />
-                    </Link>
-                    <IconButton onClick={() => setOpenSidebar(false)}><TbLayoutSidebarLeftCollapse /></IconButton>
-                </div>
-                <Ul style={styles.ul}>
-                    <Link to='/'><List $selected={Boolean(newChatMatch)}><IconButton size={20}><LuCopyPlus /></IconButton>새 질문</List></Link>
-                    <Link to='/graph'><List $selected={Boolean(graphMatch)}><IconButton size={20}><LuChartSpline /></IconButton>그래프 그리기</List></Link>
-                    {/* <li><IoSearch />채팅 검색</li> */}
-                    <a href="undefined" onClick={(e) => {e.preventDefault(); history?.length > 0 && setVisibleHistory(prev => !prev);}}>
-                        <List $selected={Boolean(historyMatch)}><IconButton size={20}><GoStack /></IconButton>질문 내역</List>
-                    </a>
-                    {visibleHistory && <Ul style={styles.ul}>
-                        {historySummary?.map(item => {
-                            return (
-                                <List key={item.id} $selected={Boolean(historyMatch) && currentSessionId === item.id} style={styles.li}>
-                                    <Link to={`/history/0/${item.id}`} onClick={() => setCurrentSessionId(item.id)}>
-                                        <div>{item.title}</div>
-                                    </Link>
-                                    <IconButton size={20} onClick={() => removeChatSession(item.id)}><CgMathPlus style={{transform: 'rotate(45deg)'}}/></IconButton>
-                                </List>
-                            )
-                        })}
-                    </Ul>}
-                </Ul>
-            </Aside>
-        </div>
+        <Aside $openSidebar={openSidebar}>
+            <div className="header">
+                <Link to="/">
+                    <img src={logo} alt="로고 아이콘" />
+                </Link>
+                <IconButton onClick={() => setOpenSidebar(false)}><TbLayoutSidebarLeftCollapse /></IconButton>
+            </div>
+            <Ul style={styles.ul}>
+                <Link to='/'>
+                    <List $selected={Boolean(newChatMatch)}>
+                        <IconButton size={20}><LuCopyPlus /></IconButton>새 질문
+                    </List>
+                </Link>
+                {/* <Link to='/graph'>
+                    <List $selected={Boolean(graphMatch)}>
+                        <IconButton size={20}><LuChartSpline /></IconButton>그래프 그리기
+                    </List>
+                </Link> */}
+                {/* <li><IoSearch />채팅 검색</li> */}
+                <a href="undefined" onClick={(e) => {e.preventDefault(); if (historySummary?.length > 0) setVisibleHistory(prev => !prev);}}>
+                    <List $selected={Boolean(historyMatch)}>
+                        <IconButton size={20}><GoStack /></IconButton>질문 내역
+                    </List>
+                </a>
+                {visibleHistory && <Ul style={styles.ul}>
+                    {historySummary?.map(item => {
+                        return (
+                            <List key={item.id} $selected={Boolean(historyMatch) && currentSessionId === item.id} style={styles.li}>
+                                <Link to={`/history/0/${item.id}`} onClick={() => setCurrentSessionId(item.id)}>
+                                    <div>{item.title}</div>
+                                </Link>
+                                <IconButton size={20} color='gray' onClick={() => removeChatSession(item.id)}><CgMathPlus style={{transform: 'rotate(45deg)'}}/></IconButton>
+                            </List>
+                        )
+                    })}
+                </Ul>}
+            </Ul>
+        </Aside>
     )
 }
 
@@ -103,6 +109,7 @@ const Aside = styled.aside`
     box-shadow: 0 2px 16px 0 #00000008;
     transform: ${props => props.$openSidebar ? 'translateX(0)' : "translateX(-104%)"};
     // transition: transform .7s ease-in-out;
+    overflow: auto;
 
     & > .header {
         padding: 1rem 0 0;
@@ -144,5 +151,6 @@ const List = styled.li`
     & > a {
         color: ${props => props.$selected ? 'black' : 'rgb(59, 59, 59)'};
         text-decoration: none;
+        width: 100%;
     }
 `

@@ -1,6 +1,6 @@
 import React from "react";
 import useLoading from "hooks/useLoading";
-import { ScaleLoader, PulseLoader, BeatLoader } from "react-spinners";
+import { ScaleLoader, BeatLoader, ClipLoader } from "react-spinners";
 
 // 📍 로딩 화면 생성
 export const LoadingOverlay = () => {
