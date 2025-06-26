@@ -27,7 +27,6 @@ function ChatPage ({ isNewChat }) {
     const bottomRef = useRef(null)
     // const intervalRef = useRef(null) // 주기적 렌더링 타이머
 
-
     useEffect(() => {
         if (isFirstRender.current && parseInt(initial || '', 0) && newQuestion) {
             setQuestion(newQuestion)
@@ -58,7 +57,7 @@ function ChatPage ({ isNewChat }) {
         navigate(`/history/1/${sessionId}`)
     }
 
-    const askQuestion = async (e) => {
+    const askQuestion = async (e, signal) => {
         const questionCopy = newQuestion || question
         if (file) return askWithImage(e)
         if (isLoading || questionCopy.trim() === '') return
@@ -68,7 +67,7 @@ function ChatPage ({ isNewChat }) {
         if (bottomRef.current) bottomRef.current.scrollIntoView({ behavior: "smooth" })
 
         try {
-            const response = await askQuestionApi(question)
+            const response = await askQuestionApi(question, signal)
             const reader = response.body.getReader()
             const decoder = new TextDecoder('utf-8')
             
@@ -80,7 +79,6 @@ function ChatPage ({ isNewChat }) {
 
                 setAnswer(bufferRef.current)
             }
-            setIsLoading(false)
 
             if (newQuestion) {
                 createSession(id, questionCopy, bufferRef.current)
@@ -89,15 +87,20 @@ function ChatPage ({ isNewChat }) {
                 addMessage(id, questionCopy, bufferRef.current)
             }
         } catch (err) {
-            console.error(err)
-            setAnswer('에러 발생: ' + err.message)
+            if (err.name === 'AbortError') {
+                console.log('요청이 취소되었습니다.');
+            } else {
+                console.error('요청 실패:', err);
+                setAnswer('에러 발생: ' + err.message)
+            }
         } finally {
+            setIsLoading(false)
             setAnswer('')
             setQuestion('')
         }
     }
 
-    const askWithImage = async (e) => {
+    const askWithImage = async (e, signal) => {
         e.preventDefault()
 
         if (!file) return
@@ -105,21 +108,25 @@ function ChatPage ({ isNewChat }) {
         setIsLoading(true)
 
         try {
-            const response = await askWithImageApi(file)
+            const response = await askWithImageApi(file, signal)
             if (!response) throw new Error('Server Error')
 
-            setFile(null)
-            
             // 파일 선택 초기화 (동일 파일 재선택 허용)
             e.target.value = null
+            // setFile(null)
             
             const data = await response.json()
             setExtractedText(data.text)
 
         } catch(err) {
-            console.error(err)
-            setAnswer('에러 발생: ' + err.message)
+            if (err.name === 'AbortError') {
+                console.log('요청이 취소되었습니다.');
+            } else {
+                console.error('요청 실패:', err);
+                setAnswer('에러 발생: ' + err.message)
+            }
         } finally {
+            setFile(null)
             setIsLoading(false)
         }
     }

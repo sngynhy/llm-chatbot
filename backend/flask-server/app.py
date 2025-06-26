@@ -23,17 +23,6 @@ def extract():
     print(text)
     return jsonify({'text': text})
 
-@app.route("/calc", methods=["POST"])
-def calc():
-    tex = r"f(x)=e^{2 x+1}"
-    # tex = r"x^2-16 x+48=0"
-    # tex = r"\frac{4}{3^{-2}+3^{-3}}"
-    # tex = r"\frac{d}{dx}(x^{2}+x)"
-    a = latex_to_sympy(tex)
-    b = latex_to_latex(tex)
-    print('aaaaa', a)
-    print('bbbbb', b)
-
 @app.route("/ask/file", methods=["POST"])
 def predict():
     # 첨부파일 확인

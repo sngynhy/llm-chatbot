@@ -1,12 +1,12 @@
-import React, { useRef, useState } from 'react'
+import React, { useEffect, useRef, useState } from 'react'
 import styled from 'styled-components'
 import { mainColor, mainBackColor } from 'styles/Common'
 import IconButton from '../ui/IconButton'
 import { LuSend } from 'react-icons/lu'
+import FilePreview from './FilePreview'
 import { ScaleLoader } from 'react-spinners'
 import { MdAttachFile } from 'react-icons/md'
-import { CgMathPlus } from 'react-icons/cg'
-import FilePreview from './FilePreview'
+import { IoStopCircleSharp } from "react-icons/io5";
 
 export const ChatInputArea = ({
     isNewChat,
@@ -17,6 +17,12 @@ export const ChatInputArea = ({
     inputRef }) => {
 
     // const [extractedText, setExtractedText] = useState('')
+    const [isHovered, setIsHovered] = useState(false)
+    const controllerRef = useRef(null)
+
+    // useEffect(() => {
+    //     return () => cancelRequest()
+    // }, [])
 
     const handleFileChange = (e) => {
         const input = e.target
@@ -28,13 +34,20 @@ export const ChatInputArea = ({
     }
     
     const handleKeyDown = (e) => {
-        if (e.key === 'Enter') {
-            file ? onFileSubmit(e) : onSubmit(e)
-        }
+        if (e.key === 'Enter') onClickSendButton(e)
     }
 
     const onClickSendButton = (e) => {
-        file ? onFileSubmit(e) : onSubmit(e)
+        const controller = new AbortController()
+        controllerRef.current = controller
+
+        file ? onFileSubmit(e, controller.signal) : onSubmit(e, controller.signal)
+    }
+
+    const cancelRequest = () => {
+        if (controllerRef.current) {
+            controllerRef.current.abort()
+        }
     }
 
     return (
@@ -63,7 +76,9 @@ export const ChatInputArea = ({
             }
 
             {isLoading
-                ? <IconButton style={{cursur: 'auto !important'}}><ScaleLoader width={2} height={18} /></IconButton>
+                ? <IconButton size={isHovered ? 30 : 24} style={{cursur: 'auto !important'}}>
+                    {isHovered ? <IoStopCircleSharp onMouseLeave={() => setIsHovered(false)} onClick={cancelRequest} /> : <ScaleLoader onMouseEnter={() => setIsHovered(true)} width={2} height={18} />}
+                </IconButton>
                 : <IconButton size={20} onClick={onClickSendButton}><LuSend /></IconButton>}
         </Conatainer>
     )
@@ -105,10 +120,11 @@ const Conatainer = styled.div`
             padding: 5px;
             border-radius: 6px;
             cursor: pointer;
+            background-color: ${mainBackColor};
             
-            &:hover {
-                background-color: ${mainBackColor}
-            }
+            // &:hover {
+            //     background-color: ${mainBackColor};
+            // }
 
             & > div {
                 margin-right: 5px;
