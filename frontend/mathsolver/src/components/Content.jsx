@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useEffect, useRef } from 'react'
 import styled from 'styled-components'
 import IconButton from './ui/IconButton';
 import { useStyleStore } from 'stores/useStyleStore';
@@ -10,13 +10,22 @@ import { Link } from 'react-router-dom';
 function Content () {
     const { openSidebar, setOpenSidebar } = useStyleStore()
 
+    const scrollBoxRef = useRef(null)
+    useEffect(() => {
+        if (scrollBoxRef.current) {
+            scrollBoxRef.current.scrollTo({
+                top: scrollBoxRef.current.scrollHeight + '30rem',
+                behavior: 'auto'
+            })
+        }
+    }, [])
     return (
-        <Container id="content">
+        <Container id="content" ref={scrollBoxRef}>
             {!openSidebar && <div id="header">
                 <IconButton onClick={() => setOpenSidebar(true)}><TbLayoutSidebarLeftExpand /></IconButton>
                 <Link to='/'><IconButton><LuCopyPlus /></IconButton></Link>
             </div>}
-            <Router />
+            <Router scrollRef={scrollBoxRef} />
         </Container>
     )
 }

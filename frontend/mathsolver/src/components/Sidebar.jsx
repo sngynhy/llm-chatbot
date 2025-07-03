@@ -10,6 +10,7 @@ import { CgMathPlus } from "react-icons/cg";
 import IconButton from 'components/ui/IconButton';
 import { useStyleStore } from 'stores/useStyleStore';
 import { useHistoryStore } from 'stores/useHistoryStore';
+import { WithMathJax } from './content/WithMathJax';
 
 function Sidebar () {
     const [visibleHistory, setVisibleHistory] = useState(true)
@@ -25,7 +26,7 @@ function Sidebar () {
                     .sort((a, b) => a.sessionId - b.sessionId)
                     .map(({ sessionId, title }) => ({
                         id: sessionId,
-                        title,
+                        title
                     }))
     }, [history])
 
@@ -49,11 +50,11 @@ function Sidebar () {
                         <IconButton size={20}><LuCopyPlus /></IconButton>새 질문
                     </List>
                 </Link>
-                {/* <Link to='/graph'>
+                <Link to='/graph'>
                     <List $selected={Boolean(graphMatch)}>
                         <IconButton size={20}><LuChartSpline /></IconButton>그래프 그리기
                     </List>
-                </Link> */}
+                </Link>
                 {/* <li><IoSearch />채팅 검색</li> */}
                 <a href="undefined" onClick={(e) => {e.preventDefault(); if (historySummary?.length > 0) setVisibleHistory(prev => !prev);}}>
                     <List $selected={Boolean(historyMatch)}>
@@ -65,7 +66,8 @@ function Sidebar () {
                         return (
                             <List key={item.id} $selected={Boolean(historyMatch) && currentSessionId === item.id} style={styles.li}>
                                 <Link to={`/history/0/${item.id}`} onClick={() => setCurrentSessionId(item.id)}>
-                                    <div>{item.title}</div>
+                                    {/* <div>{item.title}</div> */}
+                                    {!item.isLatex ? <div>{item.title}</div> : <WithMathJax latex={item.title} />}
                                 </Link>
                                 <IconButton size={20} color='gray' onClick={() => removeChatSession(item.id)}><CgMathPlus style={{transform: 'rotate(45deg)'}}/></IconButton>
                             </List>

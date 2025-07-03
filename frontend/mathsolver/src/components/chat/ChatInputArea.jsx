@@ -7,6 +7,7 @@ import FilePreview from './FilePreview'
 import { ScaleLoader } from 'react-spinners'
 import { MdAttachFile } from 'react-icons/md'
 import { IoStopCircleSharp } from "react-icons/io5";
+import { RiSendPlaneFill } from "react-icons/ri";
 
 export const ChatInputArea = ({
     isNewChat,
@@ -14,15 +15,11 @@ export const ChatInputArea = ({
     isLoading,
     question, setQuestion,
     onSubmit, onFileSubmit,
+    cancelSubmit,
     inputRef }) => {
 
     // const [extractedText, setExtractedText] = useState('')
     const [isHovered, setIsHovered] = useState(false)
-    const controllerRef = useRef(null)
-
-    // useEffect(() => {
-    //     return () => cancelRequest()
-    // }, [])
 
     const handleFileChange = (e) => {
         const input = e.target
@@ -38,48 +35,33 @@ export const ChatInputArea = ({
     }
 
     const onClickSendButton = (e) => {
-        const controller = new AbortController()
-        controllerRef.current = controller
-
-        file ? onFileSubmit(e, controller.signal) : onSubmit(e, controller.signal)
-    }
-
-    const cancelRequest = () => {
-        if (controllerRef.current) {
-            controllerRef.current.abort()
-        }
+        file ? onFileSubmit(e) : onSubmit(e)
     }
 
     return (
         <Conatainer id="input-area" tabIndex={0} style={isNewChat ? undefined : {position: 'sticky', bottom: '1rem'}}>
             <input type="file" id="fileInput" style={{display: 'none'}} onChange={handleFileChange} />
-            <label htmlFor="fileInput" style={{display: "flex"}}>
-                <IconButton size={20}><MdAttachFile /></IconButton>
+            <label htmlFor="fileInput" style={{display: 'flex'}}>
+                <div style={{display: 'flex', alignItems: 'center', cursor: 'pointer'}}><MdAttachFile size={20} /></div>
             </label>
 
             {file
                 ? <FilePreview file={file} onClear={() => setFile(null)} />
-                : isNewChat
-                    ? <input
-                        ref={inputRef}
-                        onKeyDown={handleKeyDown}
-                        placeholder='질문을 입력하세요'
-                    />
-                    : <input
-                        ref={inputRef}
-                        value={isLoading ? '' : question}
-                        onChange={(e) => setQuestion(e.target.value)}
-                        onKeyDown={handleKeyDown}
-                        disabled={isLoading}
-                        placeholder='질문을 입력하세요'
-                    />
+                : <input
+                    ref={inputRef}
+                    value={isLoading ? '' : question}
+                    onChange={(e) => setQuestion(e.target.value)}
+                    onKeyDown={handleKeyDown}
+                    disabled={isLoading}
+                    placeholder='질문을 입력하세요'
+                />
             }
 
             {isLoading
                 ? <IconButton size={isHovered ? 30 : 24} style={{cursur: 'auto !important'}}>
-                    {isHovered ? <IoStopCircleSharp onMouseLeave={() => setIsHovered(false)} onClick={cancelRequest} /> : <ScaleLoader onMouseEnter={() => setIsHovered(true)} width={2} height={18} />}
+                    {isHovered ? <IoStopCircleSharp onMouseLeave={() => setIsHovered(false)} onClick={cancelSubmit} /> : <ScaleLoader onMouseEnter={() => setIsHovered(true)} width={2} height={18} />}
                 </IconButton>
-                : <IconButton size={20} onClick={onClickSendButton}><LuSend /></IconButton>}
+                : <IconButton color={mainColor} disabled={!question.trim() && !file} onClick={onClickSendButton}><RiSendPlaneFill /></IconButton>}
         </Conatainer>
     )
 }

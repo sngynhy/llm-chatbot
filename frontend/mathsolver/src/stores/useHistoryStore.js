@@ -22,34 +22,36 @@ export const useHistoryStore = create(
       history: {},
       currentSessionId: null,
       setCurrentSessionId: (sessionId) => set({ currentSessionId: sessionId }),
-      createSession: (sessionId, initialQ, initialA) => {
+      createSession: (sessionId, initialQ, initialA, isLatex) => {
         const date = Date.now()
         const newSession = {
           sessionId,
           title: initialQ.slice(0, 18) || 'New Chat', // 추후 python으로 내용 요약 구현 후 수정
-          messages: [{ question: initialQ, answer: initialA, createdAt: date }]
+          messages: [{ question: initialQ, answer: initialA, createdAt: date, isLatex }]
         }
         set(state => ({
           history: { ...state.history, [sessionId]: newSession },
           currentSessionId: sessionId
         }))
       },
-      addMessage: (sessionId, question, answer) => {set(state => {
-        const session = state.history[sessionId]
-        if (!session) return state
+      addMessage: (sessionId, question, answer, isLatex) => {
+        set(state => {
+          const session = state.history[sessionId]
+          if (!session) return state
 
-        const createdAt = Date.now()
+          const createdAt = Date.now()
 
-        return {
-          history: {
-            ...state.history,
-            [sessionId]: {
-              ...session,
-              messages: [...session.messages, { question, answer, createdAt }]
+          return {
+            history: {
+              ...state.history,
+              [sessionId]: {
+                ...session,
+                messages: [...session.messages, { question, answer, createdAt, isLatex }]
+              }
             }
           }
-        }
-      })},
+        })
+      },
       deleteSession: id => {set(state => {
         const newHistory = { ...state.history }
         delete newHistory[id]

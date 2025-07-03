@@ -3,9 +3,10 @@ import { useNavigate, useParams } from 'react-router-dom'
 import { useHistoryStore } from 'stores/useHistoryStore'
 import ChatLayout from 'components/chat/ChatLayout'
 import ChatHeader from 'components/chat/ChatHeader'
-import ChatMessages from 'components/chat/ChatMessages'
+import { ChatMessages } from 'components/chat/ChatMessages'
 import { ChatInputArea } from 'components/chat/ChatInputArea'
 import { askQuestionApi, askWithImageApi } from 'api/askApi'
+import { useAskQuestion } from 'hooks/useAskQuestion'
 
 function ChatPage ({ isNewChat }) {
     const { initial, id } = useParams()
@@ -13,19 +14,28 @@ function ChatPage ({ isNewChat }) {
     const { newQuestion, setNewQuestion, setCurrentSessionId, clearNewQuestion,
         currentSessionId, createSession, addMessage, history } = useHistoryStore()
     
-    const [isLoading, setIsLoading] = useState(false)
     const [question, setQuestion] = useState('')
-    const [answer, setAnswer] = useState('')
     const [file, setFile] = useState(null)
-    const [extractedText, setExtractedText] = useState('')
+    const [isLatex, setisLatex] = useState(false)
+    // const [extractedText, setExtractedText] = useState('')
 
     const navigate = useNavigate()
 
     const isFirstRender = useRef(true) // 최초 렌더링 체크
-    const bufferRef = useRef('') // 실시간으로 누적되는 답변 버퍼
     const inputRef = useRef(null)
-    const bottomRef = useRef(null)
+    const chatRef = useRef(null)
     // const intervalRef = useRef(null) // 주기적 렌더링 타이머
+
+    const { isLoading, answer, askWithText, askWithFile, abort } = useAskQuestion({
+        onMessageSaved: (id, question, answer, isLatex) => {
+            if (newQuestion) {
+                createSession(id, question, answer, isLatex)
+                clearNewQuestion()
+            } else {
+                addMessage(id, question, answer, isLatex)
+            }
+        }
+    })
 
     useEffect(() => {
         if (isFirstRender.current && parseInt(initial || '', 0) && newQuestion) {
@@ -57,78 +67,35 @@ function ChatPage ({ isNewChat }) {
         navigate(`/history/1/${sessionId}`)
     }
 
-    const askQuestion = async (e, signal) => {
-        const questionCopy = newQuestion || question
-        if (file) return askWithImage(e)
-        if (isLoading || questionCopy.trim() === '') return
-
-        setIsLoading(true)
-        bufferRef.current = ''
-        if (bottomRef.current) bottomRef.current.scrollIntoView({ behavior: "smooth" })
-
-        try {
-            const response = await askQuestionApi(question, signal)
-            const reader = response.body.getReader()
-            const decoder = new TextDecoder('utf-8')
-            
-            while (true) {
-                const { done, value } = await reader.read()
-                if (done) break
-                const res = decoder.decode(value, { stream: true })
-                bufferRef.current += res
-
-                setAnswer(bufferRef.current)
-            }
-
-            if (newQuestion) {
-                createSession(id, questionCopy, bufferRef.current)
-                clearNewQuestion()
-            } else {
-                addMessage(id, questionCopy, bufferRef.current)
-            }
-        } catch (err) {
-            if (err.name === 'AbortError') {
-                console.log('요청이 취소되었습니다.');
-            } else {
-                console.error('요청 실패:', err);
-                setAnswer('에러 발생: ' + err.message)
-            }
-        } finally {
-            setIsLoading(false)
-            setAnswer('')
-            setQuestion('')
-        }
+    const scrollToBttom = () => {
+        chatRef.current?.scrollIntoView({
+            behavior: 'instant',
+            block: 'end',
+        })
     }
 
-    const askWithImage = async (e, signal) => {
+    const askQuestion = async (e) => {
+
+        if (file) return askWithImage(e)
+            
+        const questionCopy = newQuestion || question
+        if (!questionCopy.trim()) return inputRef.current.focus()
+
+        await askWithText(questionCopy, id, !!newQuestion, scrollToBttom)
+
+        setQuestion('')
+        setisLatex(false)
+    }
+
+    const askWithImage = async (e) => {
         e.preventDefault()
 
-        if (!file) return
+        await askWithFile(file, id, !!newQuestion, scrollToBttom)
 
-        setIsLoading(true)
-
-        try {
-            const response = await askWithImageApi(file, signal)
-            if (!response) throw new Error('Server Error')
-
-            // 파일 선택 초기화 (동일 파일 재선택 허용)
-            e.target.value = null
-            // setFile(null)
-            
-            const data = await response.json()
-            setExtractedText(data.text)
-
-        } catch(err) {
-            if (err.name === 'AbortError') {
-                console.log('요청이 취소되었습니다.');
-            } else {
-                console.error('요청 실패:', err);
-                setAnswer('에러 발생: ' + err.message)
-            }
-        } finally {
-            setFile(null)
-            setIsLoading(false)
-        }
+        // 파일 선택 초기화 (동일 파일 재선택 허용)
+        e.target.value = null
+        setFile(null)
+        setisLatex(true)
     }
 
   return (
@@ -137,10 +104,12 @@ function ChatPage ({ isNewChat }) {
         {isNewChat
             ? <ChatHeader />
             : <ChatMessages
+                ref={chatRef}
                 messages={chatMessages}
                 isLoading={isLoading}
                 question={question}
                 answer={answer}
+                isLatex={isLatex}
             />
         }
 
@@ -152,11 +121,11 @@ function ChatPage ({ isNewChat }) {
             question={question}
             setQuestion={setQuestion}
             onSubmit={isNewChat ? askNewQuestion : askQuestion}
-            onFileSubmit={askWithImage}
+            onFileSubmit={isNewChat ? askNewQuestion : askWithImage}
+            cancelSubmit={abort}
             inputRef={inputRef}
         />
 
-        {/* <div className="this" ref={bottomRef} /> */}
     </ChatLayout>
   )
 }

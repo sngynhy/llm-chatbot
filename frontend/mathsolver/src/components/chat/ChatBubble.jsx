@@ -1,11 +1,17 @@
 import React from 'react'
 import styled from 'styled-components'
 import { mainColor } from 'styles/Common'
+import { WithMathJax } from 'components/content/WithMathJax'
 
 function ChatBubble ({ data }) {
     return (
         <BubbleWrapper>
-            {data?.question && <Bubble $isUser={true}>{data.question}</Bubble>}
+            {data?.question &&
+            <Bubble $isUser={true}>
+                {data?.isLatex
+                    ? <WithMathJax latex={data.question} />
+                    : data.question}
+            </Bubble>}
             {data?.answer && <Bubble $isUser={false}>{data.answer}</Bubble>}
         </BubbleWrapper>
     )
@@ -29,9 +35,9 @@ const Bubble = styled.pre`
     font-size: 14px;
     font-family: roboto;
     line-height: 1.5;
-    overflow: auto;
     border-bottom-left-radius: ${(props) => (props.isUser ? '20px' : '0')};
     border-bottom-right-radius: ${(props) => (!props.isUser ? '20px' : '0')};
     white-space: pre-wrap;
+    // overflow: auto;
 `
 export default ChatBubble
