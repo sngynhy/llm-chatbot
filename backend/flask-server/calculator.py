@@ -1,12 +1,11 @@
 from fractions import Fraction
 from sympy import simplify, symbols, Eq, solve
-from latex2sympy2 import latex2sympy, latex2latex
+# from latex2sympy2 import latex2sympy, latex2latex
 
-def process_sympy_expr(latex_code):
+def process_sympy_expr(expr):
     try:
-        expr = latex2sympy(latex_code)
         print('latex2sympy >> 식: ', expr, ', 타입: ', type(expr))
-        print(expr.doit())
+        print(simplify(expr))
 
         if isinstance(expr, list):
             results = [process_single_expr(e) for e in expr]
@@ -51,5 +50,5 @@ def process_single_expr(expr):
     else:
         return f"[알 수 없는 표현식 타입] {expr}"
 
-def latex_to_latex(latex):
-    return latex2latex(latex)
+# def latex_to_latex(latex):
+#     return latex2latex(latex)

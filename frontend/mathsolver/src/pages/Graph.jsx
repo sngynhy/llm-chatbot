@@ -136,14 +136,13 @@ function Graph () {
 
     return (
         <div>
-            <h2>y = x² 함수 그래프</h2>
-            <button onClick={handle}>눌러봐</button>
-            <canvas
+            <h1>그래프</h1>
+            {/* <canvas
                 ref={canvasRef}
                 width={600}
                 height={400}
                 style={{ border: '1px solid black' }}
-            />
+            /> */}
         </div>
     )
 }

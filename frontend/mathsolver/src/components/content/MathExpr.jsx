@@ -7,7 +7,8 @@ const config = {
   loader: { load: ["input/tex", "output/chtml"] }
 }
 
-export const WithMathJax = ({ latex }) => {
+export const MathExpr = ({ latex }) => {
+    // console.log('MathExpr', latex);
     return (
         <MathJaxContext version={3} config={config}>
             <MathJax dynamic>

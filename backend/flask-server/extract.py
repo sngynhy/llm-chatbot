@@ -3,11 +3,15 @@ import pytesseract
 from PIL import Image, ImageFilter, ImageOps
 import io
 from pix2tex.cli import LatexOCR
+import re
+from pylatexenc.latexwalker import LatexWalker, LatexWalkerParseError
+from sympy.parsing.latex import parse_latex
 
 # 모델 초기화 (최초 1회만 로딩하면 됨)
 model = LatexOCR()
 
-def extract_expression(file): # 수식 추출 by LatexOCR (pix2tex)
+# 수식 추출 by LatexOCR (pix2tex)
+def extract_expression(file):
     try:
         # 이미지 열기 (RGB로 변환)
         # image = Image.open(file.stream)
@@ -21,14 +25,62 @@ def extract_expression(file): # 수식 추출 by LatexOCR (pix2tex)
 
     return latex_code
 
+# 정규식 기반 전처리 > 쓰레기 토큰 제거 및 수정
+def preprocess_latex(latex_str):
+    junk_patterns = [
+        r'\\mathfrak\{[^}]*\}',
+        r'\\protect',
+        r'\\ensuremath',
+        r'\\operatorname',
+        r'\\textstyle',
+        r'\\displaystyle',
+        r'\\mathrm',
+        r'\\mathcal\{[^}]*\}',
+        r'\\[&$#@]',
+    ]
+    for pattern in junk_patterns:
+        latex_str = re.sub(pattern, '', latex_str)
 
-def extract_text_w_paddle(file): # 텍스트 추출 by PaddleOCR
+    # '\' 중복 제거
+    latex_str = latex_str.replace('\\\\', '\\')
+
+    # 불필요한 공백 제거
+    latex_str = re.sub(r'\s+', ' ', latex_str).strip()
+
+    return latex_str
+
+# pylatexenc로 문법 검사
+def check_latex_syntax(latex_str):
+    try:
+        walker = LatexWalker(latex_str)
+        nodes, pos, len_ = walker.get_latex_nodes()
+        return True, None
+    except LatexWalkerParseError as e:
+        return False, str(e)
+    
+# sympy로 수학적 의미 검증
+def check_math_meaning(latex_str):
+    try:
+        # sympy의 parse_latex > 복잡한 수식 파싱 시 유용
+        expr = parse_latex(latex_str)
+        print('?????', expr)
+
+        # 간단한 추가 검사 가능
+        # 예: Symbol('x')가 들어가 있는지 등
+        return True, expr
+    except Exception as e:
+        return False, str(e)
+
+
+# 텍스트 추출 by PaddleOCR
+def extract_text_w_paddle(file):
     return ""
 
 
 pytesseract.pytesseract.tesseract_cmd = r"C:\Program Files\Tesseract-OCR\tesseract"
 
-def extract_text(file): # 텍스트 추출 by Tesseract
+# 텍스트 추출 by Tesseract
+def extract_text(file):
     try:
         # Pillow로 이미지 열고
         image = Image.open(file.stream)

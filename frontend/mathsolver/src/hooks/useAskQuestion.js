@@ -9,7 +9,7 @@ export function useAskQuestion({ onMessageSaved }) {
     const controllerRef = useRef(null)
     const bufferRef = useRef('')
 
-    const askWithText = async (question, sessionId, isNew, onBeforeStart) => {
+    const askWithText = async (question, sessionId, onBeforeStart) => {
         if (!question.trim()) return
 
         setIsLoading(true)
@@ -40,7 +40,7 @@ export function useAskQuestion({ onMessageSaved }) {
         }
     }
 
-    const askWithFile = async (file, sessionId, isNew, onBeforeStart) => {
+    const askWithFile = async (file, sessionId, onBeforeStart) => {
         if (!file) return
 
         setIsLoading(true)

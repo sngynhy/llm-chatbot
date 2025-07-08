@@ -5,129 +5,132 @@ import ChatLayout from 'components/chat/ChatLayout'
 import ChatHeader from 'components/chat/ChatHeader'
 import { ChatMessages } from 'components/chat/ChatMessages'
 import { ChatInputArea } from 'components/chat/ChatInputArea'
-import { askQuestionApi, askWithImageApi } from 'api/askApi'
 import { useAskQuestion } from 'hooks/useAskQuestion'
 
 function ChatPage ({ isNewChat }) {
-    const { initial, id } = useParams()
+    const { initialAsk, sessionId } = useParams()
 
-    const { newQuestion, setNewQuestion, setCurrentSessionId, clearNewQuestion,
-        currentSessionId, createSession, addMessage, history } = useHistoryStore()
+    const { newQuestion, setNewQuestion, clearNewQuestion,
+        currentSessionId, setCurrentSessionId,
+        createSession, addMessage, history } = useHistoryStore()
     
     const [question, setQuestion] = useState('')
     const [file, setFile] = useState(null)
     const [isLatex, setisLatex] = useState(false)
-    // const [extractedText, setExtractedText] = useState('')
 
     const navigate = useNavigate()
 
     const isFirstRender = useRef(true) // 최초 렌더링 체크
     const inputRef = useRef(null)
     const chatRef = useRef(null)
-    // const intervalRef = useRef(null) // 주기적 렌더링 타이머
 
     const { isLoading, answer, askWithText, askWithFile, abort } = useAskQuestion({
-        onMessageSaved: (id, question, answer, isLatex) => {
+        onMessageSaved: (sessionId, question, answer, isLatex) => {
             if (newQuestion) {
-                createSession(id, question, answer, isLatex)
+                createSession(sessionId, question, answer, isLatex)
                 clearNewQuestion()
             } else {
-                addMessage(id, question, answer, isLatex)
+                addMessage(sessionId, question, answer, isLatex)
             }
         }
     })
 
     useEffect(() => {
-        if (isFirstRender.current && parseInt(initial || '', 0) && newQuestion) {
-            setQuestion(newQuestion)
-            askQuestion()
-            // clearNewQuestion()
+        // 새 채팅 페이지에서 넘어온 경우 아래 코드 실행
+        if (isFirstRender.current && !isNewChat && Number(initialAsk || '', 0) && newQuestion) {
+            newQuestion.type === 'text' ? setQuestion(newQuestion.value) : setFile(newQuestion.value)
+            newQuestion.type === 'text' ? askQuestion() : askWithImage()
             isFirstRender.current = false
         }
-    }, [newQuestion, initial])
+    }, [newQuestion, initialAsk])
+
+    useEffect(() => {
+        isFirstRender.current = true
+        scrollToBttom()
+    }, [sessionId])
 
     const chatMessages = useMemo(() => {
-        const target = history?.[id]?.messages
+        const target = history?.[sessionId]?.messages
         if (target && Array.isArray(target)) {
             const sorted = [...target].sort((a, b) => a.createdAt - b.createdAt)
             return sorted
         }
         return []
-    }, [history, id])
+    }, [history, sessionId])
 
-    const askNewQuestion = (e) => {
-        const question = e.target.value
+    const askNewQuestion = () => {
+        // console.log('askNewQuestion', question);
         
-        if (file) return askWithImage(e)
-        if (question === undefined) return inputRef.current.focus()
+        if (!file && question === undefined) return inputRef.current.focus()
 
-        setNewQuestion(question)
+        const param = { type: !file ? 'text' : 'file', value: !file ? question : file }  
+        setNewQuestion(param)
         const sessionId = new Date().getTime()
         setCurrentSessionId(sessionId.toString())
         navigate(`/history/1/${sessionId}`)
     }
 
     const scrollToBttom = () => {
+        console.log('scrollToBttom', chatRef.current);
         chatRef.current?.scrollIntoView({
             behavior: 'instant',
             block: 'end',
         })
     }
 
-    const askQuestion = async (e) => {
-
-        if (file) return askWithImage(e)
+    const askQuestion = async () => {
+        // console.log('✨askQuestion', );
             
-        const questionCopy = newQuestion || question
+        const questionCopy = newQuestion?.value || question
         if (!questionCopy.trim()) return inputRef.current.focus()
 
-        await askWithText(questionCopy, id, !!newQuestion, scrollToBttom)
+        await askWithText(questionCopy, sessionId, scrollToBttom)
 
         setQuestion('')
         setisLatex(false)
     }
 
-    const askWithImage = async (e) => {
-        e.preventDefault()
+    const askWithImage = async () => {
+        // console.log('🎞askWithImage', );
 
-        await askWithFile(file, id, !!newQuestion, scrollToBttom)
+        const fileCopy = newQuestion?.value || file
 
-        // 파일 선택 초기화 (동일 파일 재선택 허용)
-        e.target.value = null
+        await askWithFile(fileCopy, sessionId, scrollToBttom)
+        
         setFile(null)
         setisLatex(true)
     }
+    
+    return (
+        <ChatLayout isNewChat={isNewChat}>
 
-  return (
-    <ChatLayout isNewChat={isNewChat}>
+            {isNewChat
+                ? <ChatHeader />
+                : <ChatMessages
+                    ref={chatRef}
+                    messages={chatMessages}
+                    isLoading={isLoading}
+                    question={question}
+                    answer={answer}
+                    isLatex={isLatex}
+                />
+            }
 
-        {isNewChat
-            ? <ChatHeader />
-            : <ChatMessages
-                ref={chatRef}
-                messages={chatMessages}
+            <ChatInputArea
+                isNewChat={isNewChat}
                 isLoading={isLoading}
+                file={file}
+                setFile={setFile}
                 question={question}
-                answer={answer}
-                isLatex={isLatex}
+                setQuestion={setQuestion}
+                onSubmit={isNewChat ? askNewQuestion : askQuestion}
+                onFileSubmit={isNewChat ? askNewQuestion : askWithImage}
+                cancelSubmit={abort}
+                inputRef={inputRef}
             />
-        }
 
-        <ChatInputArea
-            isNewChat={isNewChat}
-            isLoading={isLoading}
-            file={file}
-            setFile={setFile}
-            question={question}
-            setQuestion={setQuestion}
-            onSubmit={isNewChat ? askNewQuestion : askQuestion}
-            onFileSubmit={isNewChat ? askNewQuestion : askWithImage}
-            cancelSubmit={abort}
-            inputRef={inputRef}
-        />
-
-    </ChatLayout>
-  )
+        </ChatLayout>
+    )
 }
 
 export default ChatPage

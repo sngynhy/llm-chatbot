@@ -1,7 +1,7 @@
 import React from 'react'
 import styled from 'styled-components'
 import { mainColor } from 'styles/Common'
-import { WithMathJax } from 'components/content/WithMathJax'
+import { MathExpr } from 'components/content/MathExpr'
 
 function ChatBubble ({ data }) {
     return (
@@ -9,7 +9,7 @@ function ChatBubble ({ data }) {
             {data?.question &&
             <Bubble $isUser={true}>
                 {data?.isLatex
-                    ? <WithMathJax latex={data.question} />
+                    ? <MathExpr latex={data.question} />
                     : data.question}
             </Bubble>}
             {data?.answer && <Bubble $isUser={false}>{data.answer}</Bubble>}

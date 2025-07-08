@@ -10,7 +10,7 @@ import { CgMathPlus } from "react-icons/cg";
 import IconButton from 'components/ui/IconButton';
 import { useStyleStore } from 'stores/useStyleStore';
 import { useHistoryStore } from 'stores/useHistoryStore';
-import { WithMathJax } from './content/WithMathJax';
+import { MathExpr } from './content/MathExpr';
 
 function Sidebar () {
     const [visibleHistory, setVisibleHistory] = useState(true)
@@ -19,20 +19,21 @@ function Sidebar () {
 
     const newChatMatch = useMatch('/')
     const graphMatch = useMatch('/graph')
-    const historyMatch = useMatch('/history/:initial/:id')
+    const historyMatch = useMatch('/history/:initialAsk/:sessionId')
     
     const historySummary = useMemo(() => {
         return Object.values(history)
                     .sort((a, b) => a.sessionId - b.sessionId)
-                    .map(({ sessionId, title }) => ({
-                        id: sessionId,
-                        title
+                    .map(({ sessionId, title, isLatex }) => ({
+                        sessionId,
+                        title,
+                        isLatex
                     }))
     }, [history])
 
     const navigate = useNavigate();
-    const removeChatSession = (id) => {
-        deleteSession(id)
+    const removeChatSession = (sessionId) => {
+        deleteSession(sessionId)
         navigate('/')
     }
 
@@ -47,29 +48,28 @@ function Sidebar () {
             <Ul style={styles.ul}>
                 <Link to='/'>
                     <List $selected={Boolean(newChatMatch)}>
-                        <IconButton size={20}><LuCopyPlus /></IconButton>새 질문
+                        <IconButton size={20} color={Boolean(newChatMatch) ? 'black' : 'rgb(59, 59, 59)'}><LuCopyPlus /></IconButton>새 질문
                     </List>
                 </Link>
                 <Link to='/graph'>
                     <List $selected={Boolean(graphMatch)}>
-                        <IconButton size={20}><LuChartSpline /></IconButton>그래프 그리기
+                        <IconButton size={20} color={Boolean(graphMatch) ? 'black' : 'rgb(59, 59, 59)'}><LuChartSpline /></IconButton>그래프 그리기
                     </List>
                 </Link>
                 {/* <li><IoSearch />채팅 검색</li> */}
                 <a href="undefined" onClick={(e) => {e.preventDefault(); if (historySummary?.length > 0) setVisibleHistory(prev => !prev);}}>
                     <List $selected={Boolean(historyMatch)}>
-                        <IconButton size={20}><GoStack /></IconButton>질문 내역
+                        <IconButton size={20} color={Boolean(historyMatch) ? 'black' : 'rgb(59, 59, 59)'}><GoStack /></IconButton>질문 내역
                     </List>
                 </a>
                 {visibleHistory && <Ul style={styles.ul}>
                     {historySummary?.map(item => {
                         return (
-                            <List key={item.id} $selected={Boolean(historyMatch) && currentSessionId === item.id} style={styles.li}>
-                                <Link to={`/history/0/${item.id}`} onClick={() => setCurrentSessionId(item.id)}>
-                                    {/* <div>{item.title}</div> */}
-                                    {!item.isLatex ? <div>{item.title}</div> : <WithMathJax latex={item.title} />}
+                            <List key={item.sessionId} $selected={Boolean(historyMatch) && currentSessionId === item.sessionId} style={styles.li}>
+                                <Link to={`/history/0/${item.sessionId}`} onClick={() => setCurrentSessionId(item.sessionId)}>
+                                    {!item.isLatex ? <div>{item.title}</div> : <MathExpr latex={item.title} />}
                                 </Link>
-                                <IconButton size={20} color='gray' onClick={() => removeChatSession(item.id)}><CgMathPlus style={{transform: 'rotate(45deg)'}}/></IconButton>
+                                <IconButton size={20} color='gray' onClick={() => removeChatSession(item.sessionId)}><CgMathPlus style={{transform: 'rotate(45deg)'}}/></IconButton>
                             </List>
                         )
                     })}

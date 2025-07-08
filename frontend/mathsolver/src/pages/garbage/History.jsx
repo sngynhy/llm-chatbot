@@ -10,8 +10,8 @@ import { ScaleLoader } from "react-spinners";
 import { CgMathPlus } from 'react-icons/cg'
 
 function History () {
-  const { initial, id } = useParams()
-  // console.log('History', initial, id);
+  const { initialAsk, id } = useParams()
+  // console.log('History', initialAsk, id);
   
   const { newQuestion, clearNewQuestion, currentSessionId, createSession, addMessage, history } = useHistoryStore()
   
@@ -29,13 +29,13 @@ function History () {
 
 
   useEffect(() => {
-    if (isFirstRender.current && parseInt(initial || '', 0) && newQuestion) {
+    if (isFirstRender.current && parseInt(initialAsk || '', 0) && newQuestion) {
       setQuestion(newQuestion)
       handleAsk(newQuestion)
       // clearNewQuestion()
       isFirstRender.current = false
     }
-  }, [newQuestion, initial])
+  }, [newQuestion, initialAsk])
 
   const chatMessages = useMemo(() => {
     const target = history?.[id]?.messages

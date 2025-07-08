@@ -29,17 +29,20 @@ export const ChatInputArea = ({
         // 파일 선택 초기화 (동일 파일 재선택 허용)
         input.value = ''
     }
-    
-    const handleKeyDown = (e) => {
-        if (e.key === 'Enter') onClickSendButton(e)
-    }
 
-    const onClickSendButton = (e) => {
-        file ? onFileSubmit(e) : onSubmit(e)
+    const handleSubmit = (e) => {
+        e.preventDefault();
+        if (file) {
+            // 파일 선택 초기화 (동일 파일 재선택 허용)
+            e.target.value = null
+            onFileSubmit()
+        } else {
+            onSubmit()
+        }
     }
 
     return (
-        <Conatainer id="input-area" tabIndex={0} style={isNewChat ? undefined : {position: 'sticky', bottom: '1rem'}}>
+        <Conatainer id="input-area" tabIndex={0} onSubmit={handleSubmit} style={isNewChat ? undefined : {position: 'sticky', bottom: '1rem'}}>
             <input type="file" id="fileInput" style={{display: 'none'}} onChange={handleFileChange} />
             <label htmlFor="fileInput" style={{display: 'flex'}}>
                 <div style={{display: 'flex', alignItems: 'center', cursor: 'pointer'}}><MdAttachFile size={20} /></div>
@@ -51,7 +54,6 @@ export const ChatInputArea = ({
                     ref={inputRef}
                     value={isLoading ? '' : question}
                     onChange={(e) => setQuestion(e.target.value)}
-                    onKeyDown={handleKeyDown}
                     disabled={isLoading}
                     placeholder='질문을 입력하세요'
                 />
@@ -59,14 +61,20 @@ export const ChatInputArea = ({
 
             {isLoading
                 ? <IconButton size={isHovered ? 30 : 24} style={{cursur: 'auto !important'}}>
-                    {isHovered ? <IoStopCircleSharp onMouseLeave={() => setIsHovered(false)} onClick={cancelSubmit} /> : <ScaleLoader onMouseEnter={() => setIsHovered(true)} width={2} height={18} />}
+                    {isHovered
+                        ? <IoStopCircleSharp onMouseLeave={() => setIsHovered(false)} onClick={cancelSubmit} />
+                        : <ScaleLoader onMouseEnter={() => setIsHovered(true)} width={2} height={18} />
+                    }
                 </IconButton>
-                : <IconButton color={mainColor} disabled={!question.trim() && !file} onClick={onClickSendButton}><RiSendPlaneFill /></IconButton>}
+                : <IconButton type="submit" color={mainColor} disabled={!question.trim() && !file}>
+                    <RiSendPlaneFill />
+                </IconButton>
+            }
         </Conatainer>
     )
 }
 
-const Conatainer = styled.div`
+const Conatainer = styled.form`
     display: flex;
     justify-content: space-between;
     background-color: white;

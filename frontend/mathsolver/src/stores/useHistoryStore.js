@@ -4,7 +4,7 @@ import { persist } from 'zustand/middleware'
 
 export const useHistoryStore = create(
   persist(
-    (set) => ({
+    (set, get) => ({
       /**
        {
           "1111": {
@@ -26,8 +26,9 @@ export const useHistoryStore = create(
         const date = Date.now()
         const newSession = {
           sessionId,
-          title: initialQ.slice(0, 18) || 'New Chat', // 추후 python으로 내용 요약 구현 후 수정
-          messages: [{ question: initialQ, answer: initialA, createdAt: date, isLatex }]
+          title: isLatex ? initialQ : initialQ.slice(0, 18) || 'New Chat', // 추후 python으로 내용 요약 구현 후 수정
+          messages: [{ question: initialQ, answer: initialA, createdAt: date, isLatex }],
+          isLatex: isLatex
         }
         set(state => ({
           history: { ...state.history, [sessionId]: newSession },
@@ -38,9 +39,8 @@ export const useHistoryStore = create(
         set(state => {
           const session = state.history[sessionId]
           if (!session) return state
-
           const createdAt = Date.now()
-
+  
           return {
             history: {
               ...state.history,
@@ -62,8 +62,8 @@ export const useHistoryStore = create(
       })},
       clearHistory: () => set({ history: {}, currentSessionId: null }),
 
-      newQuestion: null,
-      setNewQuestion: value => set({ newQuestion: value }),
+      newQuestion: null, // { type: 'text OR file', value: ''}
+      setNewQuestion: (param) => set({ newQuestion: { type: param.type, value: param.value } }),
       clearNewQuestion: () => set({ newQuestion: null })
     }),
     {

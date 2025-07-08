@@ -6,3 +6,5 @@ latex2sympy2
 pytesseract
 pillow
 pix2tex[api]
+pylatexenc
+antlr4-python3-runtime

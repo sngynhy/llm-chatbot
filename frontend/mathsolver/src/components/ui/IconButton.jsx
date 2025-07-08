@@ -1,9 +1,9 @@
 import React from "react";
 import styled from "styled-components";
 
-function IconButton ({onClick, children, size=24, color='black', disabled=false}) {
+function IconButton ({onClick, children, type='button', size=24, color='black', disabled=false}) {
     return (
-        <Button onClick={onClick} $size={size} $color={color} disabled={disabled}>
+        <Button onClick={onClick} type={type} $size={size} $color={color} disabled={disabled}>
             {children}
         </Button>
     )

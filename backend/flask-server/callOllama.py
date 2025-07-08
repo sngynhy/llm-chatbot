@@ -15,6 +15,7 @@ headers = {
     "Connection": "keep-alive" # 연결 유지 → 스트림 연결 유지
 }
 
+# prompt 방식
 def stream_prompt_to_ollama(data):
     question = data['question']
 
@@ -66,7 +67,10 @@ client = OpenAI(
     api_key='ollama', # required, but unused
 )
 
-def chat_completion_with_ollama(question):
+# completion 방식
+# - 역할 기반 대화 가능, 문맥 유지 가능
+# - CoT(Chain-of-Thought) == 논리적인 추론 단계를 하나씩 서술하는 데에 유리
+def chat_completion_with_ollama(question, stream=True):
 
     if question in cache:
         return jsonify({"response": cache[question]})
@@ -74,7 +78,7 @@ def chat_completion_with_ollama(question):
     # 메시지 구성: system + user
     messages = [
         # {"role": "system", "content": "You are a math teacher. Please solve the problem step by step."},
-        {"role": "system", "content": "한국어로 풀어줘."},
+        {"role": "system", "content": "단계별로 간단히 한국어로 풀어줘."},
         {"role": "user", "content": question}
     ]
     print("messages", messages)
@@ -84,7 +88,7 @@ def chat_completion_with_ollama(question):
             response = client.chat.completions.create(
                 model=MODEL_NAME, # "wizard-math", MODEL_NAME
                 messages=messages,
-                stream=True  # 실시간 응답 (streaming)
+                stream=stream  # 실시간 응답 (streaming)
             )
 
             full_response = ''
