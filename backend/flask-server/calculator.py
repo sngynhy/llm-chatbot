@@ -4,7 +4,7 @@ from sympy import simplify, symbols, Eq, solve
 
 def process_sympy_expr(expr):
     try:
-        print('latex2sympy >> 식: ', expr, ', 타입: ', type(expr))
+        print('>> 식: ', expr, ', 타입: ', type(expr))
         print(simplify(expr))
 
         if isinstance(expr, list):
@@ -15,9 +15,11 @@ def process_sympy_expr(expr):
             print("저기양")
             return process_single_expr(expr)
     except Exception as e:
-        return f"[ERROR] 수식을 처리할 수 없습니다: {str(e)}"
+        print('🔔 오류 발생')
+        return f"[ERROR] 수식을 처리할 수 없습니다: [{expr}], {str(e)}"
 
 def process_single_expr(expr):
+    print('🎈🎈 process_single_expr')
     # 방정식
     if isinstance(expr, Eq):
         print("[방정식 풀이]")

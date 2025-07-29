@@ -1,5 +1,6 @@
 import React from 'react'
 import { MathJaxContext, MathJax } from 'better-react-mathjax'
+// import { BeatLoader } from "react-spinners";
 
 // MathJax 객체 설정
 const config = {
@@ -8,7 +9,7 @@ const config = {
 }
 
 export const MathExpr = ({ latex }) => {
-    // console.log('MathExpr', latex);
+    // console.log('MathExpr', latex, isLoading);
     return (
         <MathJaxContext version={3} config={config}>
             <MathJax dynamic>

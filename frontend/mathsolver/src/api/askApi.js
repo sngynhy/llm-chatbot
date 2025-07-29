@@ -1,17 +1,17 @@
-export const askQuestionApi = (question, signal) => {
-    return fetch('/ask', {
+export const askQuestionApi = (data, signal) => {
+    console.log('askQuestionApi > /api/ask', data);
+    return fetch(`/api/ask`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ question: question }),
+        body: JSON.stringify(data),
         signal: signal
     })
 }
 
 export const askWithImageApi = (imageFile, signal) => {
     const formData = new FormData()
-    formData.append('file', imageFile)
-    
-    return fetch('/ask/file', {
+    formData.append('file', imageFile) 
+    return fetch('/api/ask/file', {
         method: 'POST',
         body: formData,
         signal: signal

@@ -1,8 +1,7 @@
-import React, { useEffect, useRef, useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import styled from 'styled-components'
 import { mainColor, mainBackColor } from 'styles/Common'
 import IconButton from '../ui/IconButton'
-import { LuSend } from 'react-icons/lu'
 import FilePreview from './FilePreview'
 import { ScaleLoader } from 'react-spinners'
 import { MdAttachFile } from 'react-icons/md'
@@ -11,15 +10,17 @@ import { RiSendPlaneFill } from "react-icons/ri";
 
 export const ChatInputArea = ({
     isNewChat,
-    file, setFile,
     isLoading,
+    file, setFile,
     question, setQuestion,
-    onSubmit, onFileSubmit,
-    cancelSubmit,
+    onSubmit, onFileSubmit, cancelSubmit,
     inputRef }) => {
 
-    // const [extractedText, setExtractedText] = useState('')
     const [isHovered, setIsHovered] = useState(false)
+
+    useEffect(() => {
+        if (!isLoading) setIsHovered(false)
+    }, [isLoading])
 
     const handleFileChange = (e) => {
         const input = e.target
@@ -93,6 +94,7 @@ const Conatainer = styled.form`
         border: none;
         resize: none;
         width: 100%;
+        margin: 0 8px;
     }
 
     & > input:focus {

@@ -1,8 +1,8 @@
 import { askQuestionApi } from "api/askApi"
 
 // API에서 데이터를 스트리밍으로 받아와 넘겨줌
-export const fetchTextAnswer = async (question, signal, onChunk) => {
-    const response = await askQuestionApi(question, signal)
+export const fetchTextAnswer = async (data, signal, onChunk) => {
+    const response = await askQuestionApi(data, signal)
     const reader = response.body.getReader()
     const decoder = new TextDecoder('utf-8')
 

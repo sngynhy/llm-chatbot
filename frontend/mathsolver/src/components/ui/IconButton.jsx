@@ -16,6 +16,7 @@ const Button = styled.button`
     align-items: center;
     border: none;
     background-color: transparent;
+    padding: 0;
 
     &:disabled {
         & > svg {

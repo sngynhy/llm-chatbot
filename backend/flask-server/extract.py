@@ -61,15 +61,22 @@ def check_latex_syntax(latex_str):
 # sympy로 수학적 의미 검증
 def check_math_meaning(latex_str):
     try:
+        print("?????? latex_str", latex_str)
         # sympy의 parse_latex > 복잡한 수식 파싱 시 유용
         expr = parse_latex(latex_str)
-        print('?????', expr)
+        print('????? parse_latex', expr)
 
         # 간단한 추가 검사 가능
         # 예: Symbol('x')가 들어가 있는지 등
         return True, expr
     except Exception as e:
         return False, str(e)
+
+# def typeOfExpr(expr):
+#     if :
+#         return
+#     elif:
+#         return
 
 
 # 텍스트 추출 by PaddleOCR

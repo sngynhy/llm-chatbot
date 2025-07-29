@@ -10,7 +10,7 @@ function Router ({ scrollRef }) {
             <Routes>
                 <Route index path="/" element={<ChatPage isNewChat={true} />} />
                 <Route path="/graph" element={<Graph />} />
-                <Route path="/history/:initialAsk/:sessionId" element={<ChatPage isNewChat={false} />} />
+                <Route path="/chat/:initialAsk/:chatId" element={<ChatPage isNewChat={false} />} />
                 <Route path="*" element={<Navigate to="/" replace />} />
             </Routes>
         </div>

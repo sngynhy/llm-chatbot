@@ -6,10 +6,10 @@ export const mainBackColor = '#f3f5f7'
 export const ChatContainer = styled.div`
     display: flex;
     flex-direction: column;
-    // gap: 1rem;
-    // min-height: calc(100vh - 4rem);
-    // min-height: calc(100dvh - 4rem);
     padding: 0 10rem;
+    gap: 1rem;
+    ${props => props.$isNewChat && 'height: 75%;'}
+    ${props => props.$isNewChat && 'justify-content: center;'}
     
     & > h1 {
         font-weight: 400;

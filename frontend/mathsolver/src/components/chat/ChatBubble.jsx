@@ -1,18 +1,16 @@
-import React from 'react'
+import React, { memo } from 'react'
 import styled from 'styled-components'
 import { mainColor } from 'styles/Common'
 import { MathExpr } from 'components/content/MathExpr'
 
-function ChatBubble ({ data }) {
+function ChatBubble ({ message }) {
     return (
         <BubbleWrapper>
-            {data?.question &&
-            <Bubble $isUser={true}>
-                {data?.isLatex
-                    ? <MathExpr latex={data.question} />
-                    : data.question}
-            </Bubble>}
-            {data?.answer && <Bubble $isUser={false}>{data.answer}</Bubble>}
+            <Bubble $isUser={message.role === 'user'}>
+                {message?.isLatex
+                    ? <MathExpr latex={message.content} />
+                    : message.content}
+            </Bubble>
         </BubbleWrapper>
     )
 }
@@ -21,7 +19,11 @@ const BubbleWrapper = styled.div`
     display: flex;
     flex-direction: column;
     gap: 8px;
-    margin-bottom: 16px;
+    margin-bottom: 1rem;
+
+    &:last-child {
+        margin-bottom: 3rem;
+    }
 `
 const Bubble = styled.pre`
     max-width: 70%;
@@ -40,4 +42,5 @@ const Bubble = styled.pre`
     white-space: pre-wrap;
     // overflow: auto;
 `
-export default ChatBubble
+
+export default memo(ChatBubble)
