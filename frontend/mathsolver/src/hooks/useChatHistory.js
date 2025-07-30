@@ -40,7 +40,8 @@ export const useChatHistory = () => {
     const removeChat = useCallback(async (chatId) => {
         try {
             setIsLoading(prev => ({ ...prev, remove: true }))
-            await deleteChat(chatId)
+            const res = await deleteChat(chatId)
+            console.log('deleteChat', res);
             removeTitle(chatId)
         } catch (err) {
             setError(err)

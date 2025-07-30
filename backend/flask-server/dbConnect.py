@@ -61,3 +61,12 @@ def delete_chat(chat_id):
         {'chatId': chat_id},
         {'$set': {'is_deleted': 1}}
     )
+
+# 특정 문자열이 포함된 문서 검색 (대소문자 구분 X)
+# def search(keyword):
+#     results = collection.find({
+#         'content': {
+#             "$regex": '^' + keyword + '^',
+#             "$options": "i"  # 'i'는 대소문자 무시 (ignore case)
+#         }
+#     })

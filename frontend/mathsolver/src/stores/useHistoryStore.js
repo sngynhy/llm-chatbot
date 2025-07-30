@@ -20,13 +20,13 @@ export const useHistoryStore = create(
       chatTitles: [],
       setChatTitles: titles => set((state) => {
         return {
-          chatId: titles.map(el => el.chatId),
+          chatIds: titles.map(el => el.chatId),
           chatTitles: titles
         }
       }),
       removeTitle: id => set((state) => {
         return {
-          chatIds: state.chatIds.filer(el => el !== id),
+          chatIds: state.chatIds.filter(el => el !== id),
           chatTitles: state.chatTitles.filter(el => el.chatId !== id),
           currentSessionId: state.currentSessionId === id ? null : state.currentSessionId
         }

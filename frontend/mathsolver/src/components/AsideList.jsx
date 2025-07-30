@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { memo, useEffect, useState } from 'react'
 import { useHistoryStore } from 'stores/useHistoryStore'
 import { MathExpr } from './content/MathExpr'
 import { CgMathPlus } from 'react-icons/cg'
@@ -6,9 +6,9 @@ import styled from 'styled-components'
 import IconButton from './ui/IconButton'
 import { Link } from 'react-router-dom'
 
-export const AsideList = ({ chatMatch, removeSubmit }) => {
+export const AsideList = memo(({ chatMatch, currentchatId, chatTitles, removeSubmit }) => {
     const [hoveredId, setHoveredId] = useState(null)
-    const { currentchatId, setCurrentchatId, chatTitles } = useHistoryStore()
+    const { setCurrentchatId } = useHistoryStore()
 
     return (
         <Ul style={styles.ul} $borderTop={chatTitles.length > 0}>                
@@ -34,7 +34,7 @@ export const AsideList = ({ chatMatch, removeSubmit }) => {
             })}
         </Ul>
     )
-}
+})
 
 const styles = {
     ul: {
@@ -50,6 +50,7 @@ const styles = {
         display: 'flex',
         justifyContent: 'space-between',
         width: 'calc(100% - 40px)',
+        whiteSpace: 'nowrap'
     }
 }
 const Ul = styled.ul`

@@ -2,23 +2,21 @@ import React, { useEffect, useState } from 'react'
 import { Link, useMatch, useNavigate } from 'react-router-dom';
 import styled from 'styled-components'
 import logo from 'assets/logo.png'
-import { LuChartSpline, LuCopyPlus } from "react-icons/lu";
+import { LuCopyPlus } from "react-icons/lu";
 import { GoStack } from "react-icons/go";
 import { TbLayoutSidebarLeftCollapse } from "react-icons/tb";
 import IconButton from 'components/ui/IconButton';
 import { useStyleStore } from 'stores/useStyleStore';
 import { useHistoryStore } from 'stores/useHistoryStore';
-import { CgMathPlus } from "react-icons/cg";
-import { MathExpr } from './content/MathExpr';
 import { useChatHistory } from 'hooks/useChatHistory';
 import { AsideList } from './AsideList';
+import { IoSearch } from 'react-icons/io5';
 
 function Sidebar () {
     const [visibleHistory, setVisibleHistory] = useState(true)
-    // const [hoveredId, setHoveredId] = useState(null)
     
     const { openSidebar, setOpenSidebar } = useStyleStore()
-    const { currentchatId, setCurrentchatId, chatTitles } = useHistoryStore()
+    const { currentchatId, chatTitles } = useHistoryStore()
     const { actions } = useChatHistory()
 
     useEffect(() => {
@@ -56,6 +54,11 @@ function Sidebar () {
                         </Link>
                     </div> */}
                     <div>
+                        <Link to='/' style={{color: 'rgb(59, 59, 59)'}}>
+                            <IconButton size={20} color={'rgb(59, 59, 59)'}><IoSearch /></IconButton>채팅 검색
+                        </Link>
+                    </div>
+                    <div>
                         <a href="undefined" style={{color: Boolean(chatMatch) ? 'black' : 'rgb(59, 59, 59)'}} onClick={(e) => {e.preventDefault(); if (chatTitles.length > 0) setVisibleHistory(prev => !prev);}}>
                             <IconButton size={20} color={Boolean(chatMatch) ? 'black' : 'rgb(59, 59, 59)'}><GoStack /></IconButton>질문 내역
                         </a>
@@ -63,7 +66,7 @@ function Sidebar () {
                 </div> 
             </AsideHeader>
 
-            {visibleHistory && <AsideList chatMatch={chatMatch} removeSubmit={(chatId) => removeChat(chatId)} />}
+            {visibleHistory && <AsideList chatMatch={chatMatch} currentchatId={currentchatId} chatTitles={chatTitles} removeSubmit={(chatId) => removeChat(chatId)} />}
         </Aside>
     )
 }
@@ -111,7 +114,7 @@ const AsideHeader = styled.div`
         cursor: pointer;
 
         & > div {
-            padding: 12px 0;
+            padding: 12px;
             border-radius: 12px;
 
             & > a {
