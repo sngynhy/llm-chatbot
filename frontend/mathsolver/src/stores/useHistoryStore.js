@@ -24,6 +24,8 @@ export const useHistoryStore = create(
           chatTitles: titles
         }
       }),
+      addChatId: id => set((state) => ({ chatIds: [...state.chatIds, id]})),
+      addChatTitle: title => set((state) => ({ chatTitles: [...state.chatTitles, title].sort((a, b) => b.chatId.localeCompare(a.chatId))})),
       removeTitle: id => set((state) => {
         return {
           chatIds: state.chatIds.filter(el => el !== id),

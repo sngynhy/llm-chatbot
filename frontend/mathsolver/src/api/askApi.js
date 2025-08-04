@@ -1,5 +1,4 @@
 export const askQuestionApi = (data, signal) => {
-    console.log('askQuestionApi > /api/ask', data);
     return fetch(`/api/ask`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },

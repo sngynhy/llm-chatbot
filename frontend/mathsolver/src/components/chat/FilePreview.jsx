@@ -1,7 +1,7 @@
-import IconButton from "components/ui/IconButton";
+import { IconButton } from "components/ui/IconButton";
 import { CgMathPlus } from "react-icons/cg";
 
-export default function FilePreview({ file, onClear }) {
+export const FilePreview = ({ file, onClear }) => {
     return (
         <div id="file">
             <span onClick={onClear}>

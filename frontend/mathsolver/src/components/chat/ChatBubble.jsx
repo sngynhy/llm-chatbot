@@ -40,7 +40,6 @@ const Bubble = styled.pre`
     border-bottom-left-radius: ${(props) => (props.isUser ? '20px' : '0')};
     border-bottom-right-radius: ${(props) => (!props.isUser ? '20px' : '0')};
     white-space: pre-wrap;
-    // overflow: auto;
 `
 
 export default memo(ChatBubble)

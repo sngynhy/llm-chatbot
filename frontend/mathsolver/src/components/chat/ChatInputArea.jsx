@@ -1,8 +1,8 @@
 import React, { useEffect, useState } from 'react'
 import styled from 'styled-components'
 import { mainColor, mainBackColor } from 'styles/Common'
-import IconButton from '../ui/IconButton'
-import FilePreview from './FilePreview'
+import { IconButton } from '../ui/IconButton'
+import { FilePreview } from './FilePreview'
 import { ScaleLoader } from 'react-spinners'
 import { MdAttachFile } from 'react-icons/md'
 import { IoStopCircleSharp } from "react-icons/io5";
@@ -83,8 +83,8 @@ const Conatainer = styled.form`
     border-radius: 2rem;
     border: 1px solid lightgray;
     box-shadow: 0 2px 16px 0 #00000008;
-    margin: 0 10%;
     height: 2rem;
+    // margin: 0 10%;
 
     &:focus-within {
         border: 1px solid ${mainColor};

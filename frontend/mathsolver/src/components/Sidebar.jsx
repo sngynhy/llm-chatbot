@@ -5,11 +5,11 @@ import logo from 'assets/logo.png'
 import { LuCopyPlus } from "react-icons/lu";
 import { GoStack } from "react-icons/go";
 import { TbLayoutSidebarLeftCollapse } from "react-icons/tb";
-import IconButton from 'components/ui/IconButton';
+import { IconButton } from 'components/ui/IconButton';
 import { useStyleStore } from 'stores/useStyleStore';
 import { useHistoryStore } from 'stores/useHistoryStore';
 import { useChatHistory } from 'hooks/useChatHistory';
-import { AsideList } from './AsideList';
+import { SideHistoryList } from './SideHistoryList';
 import { IoSearch } from 'react-icons/io5';
 
 function Sidebar () {
@@ -25,7 +25,7 @@ function Sidebar () {
 
     const newChatMatch = useMatch('/')
     const graphMatch = useMatch('/graph')
-    const chatMatch = useMatch('/chat/:initialAsk/:chatId')
+    const chatMatch = useMatch('/chat/:chatId')
 
     const navigate = useNavigate();
     const removeChat = async (chatId) => {
@@ -42,7 +42,7 @@ function Sidebar () {
                     </Link>
                     <IconButton onClick={() => setOpenSidebar(false)}><TbLayoutSidebarLeftCollapse /></IconButton>
                 </div>
-                <div className="category">
+                <div className="menu">
                     <div>
                         <Link to='/' style={{color: Boolean(newChatMatch) ? 'black' : 'rgb(59, 59, 59)'}}>
                             <IconButton size={20} color={Boolean(newChatMatch) ? 'black' : 'rgb(59, 59, 59)'}><LuCopyPlus /></IconButton>새 질문
@@ -66,7 +66,7 @@ function Sidebar () {
                 </div> 
             </AsideHeader>
 
-            {visibleHistory && <AsideList chatMatch={chatMatch} currentchatId={currentchatId} chatTitles={chatTitles} removeSubmit={(chatId) => removeChat(chatId)} />}
+            {visibleHistory && <SideHistoryList chatMatch={chatMatch} currentchatId={currentchatId} chatTitles={chatTitles} removeSubmit={(chatId) => removeChat(chatId)} />}
         </Aside>
     )
 }
@@ -109,7 +109,7 @@ const AsideHeader = styled.div`
         }
     }
 
-    & > .category {
+    & > .menu {
         padding: 10px 0;
         cursor: pointer;
 

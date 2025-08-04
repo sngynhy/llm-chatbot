@@ -69,24 +69,12 @@ def predict():
         'answer': answer
     })
 
-@app.route("/api/extract-text", methods=["POST"])
-def extract():
-    # 첨부파일 확인
-    if 'file' not in request.files:
-        return jsonify({'error': 'No file provided'}), 400
-    
-    file = request.files['file']
-    text = extract_text(file)
-    print(text)
-    return jsonify({'text': text})
-
 # mongoDB 연결
 # chat save
 @app.route("/api/chat", methods=["POST"])
 def save_chat_api():
     try:
         chatData = request.json
-        print('chatData', chatData)
         save_chat(chatData)
         return jsonify({"status": "success", "message": f"Chat {chatData.get('chatId')} created"}), 200
     except Exception as e:
@@ -107,7 +95,6 @@ def get_chat_api(chat_id):
 @app.route("/api/chat/titles", methods=["GET"])
 def get_all_titles_api():
     titles = get_all_titles()
-    print('get_all_titles_api', titles)
     return jsonify(titles)
 
 # all chat get

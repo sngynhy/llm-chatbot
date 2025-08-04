@@ -1,12 +1,13 @@
-import React, { memo, useEffect, useState } from 'react'
+import React, { memo, useState } from 'react'
 import { useHistoryStore } from 'stores/useHistoryStore'
 import { MathExpr } from './content/MathExpr'
 import { CgMathPlus } from 'react-icons/cg'
 import styled from 'styled-components'
-import IconButton from './ui/IconButton'
+import { IconButton } from './ui/IconButton'
 import { Link } from 'react-router-dom'
 
-export const AsideList = memo(({ chatMatch, currentchatId, chatTitles, removeSubmit }) => {
+export const SideHistoryList = memo(({ chatMatch, currentchatId, chatTitles, removeSubmit }) => {
+    // console.log('SideHistoryList', currentchatId);
     const [hoveredId, setHoveredId] = useState(null)
     const { setCurrentchatId } = useHistoryStore()
 
@@ -24,7 +25,8 @@ export const AsideList = memo(({ chatMatch, currentchatId, chatTitles, removeSub
                         onMouseEnter={() => setHoveredId(item.chatId)}
                         onMouseLeave={() => setHoveredId(null)}
                     >
-                        <Link to={`/chat/0/${item.chatId}`} onClick={() => setCurrentchatId(item.chatId)}>
+                        {/* <Link to={`/chat/${item.chatId}`} state={{ initialAsk: false }} onClick={() => setCurrentchatId(item.chatId)}> */}
+                        <Link to={`/chat/${item.chatId}`} state={{ initialAsk: false }}>
                             {!item.isLatex ? <div className="title">{item.title}</div> : <MathExpr latex={item.title} />}
                         </Link>
                         

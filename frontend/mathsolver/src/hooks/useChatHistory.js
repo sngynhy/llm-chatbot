@@ -1,6 +1,7 @@
 import { useState, useMemo, useCallback } from 'react'
 import { deleteChat, fetchChat, fetchChatTitles } from "api/chatApi";
 import { useHistoryStore } from 'stores/useHistoryStore';
+import { useNavigate } from 'react-router-dom';
 
 export const useChatHistory = () => {
     const [isLoading, setIsLoading] = useState({
@@ -9,9 +10,10 @@ export const useChatHistory = () => {
         remove: false
     })
     const [error, setError] = useState()
-    // const [chatTitles, setChatTitles] = useState([])
     const [chatMessages, setChatMessages] = useState([])
     const { setChatTitles, removeTitle } = useHistoryStore()
+
+    const navigate = useNavigate()
 
     const getChatTitles = useCallback(async () => {
         try {
@@ -30,8 +32,10 @@ export const useChatHistory = () => {
             setIsLoading(prev => ({ ...prev, chat: true }))
             const res = await fetchChat(chatId)
             setChatMessages(res)
+            return res
         } catch (err) {
             setError(err)
+            if (err.status === 404) navigate('/')
         } finally {
             setIsLoading(prev => ({ ...prev, chat: false }))
         }
@@ -40,8 +44,7 @@ export const useChatHistory = () => {
     const removeChat = useCallback(async (chatId) => {
         try {
             setIsLoading(prev => ({ ...prev, remove: true }))
-            const res = await deleteChat(chatId)
-            console.log('deleteChat', res);
+            await deleteChat(chatId)
             removeTitle(chatId)
         } catch (err) {
             setError(err)

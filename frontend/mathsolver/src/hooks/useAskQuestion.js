@@ -1,25 +1,29 @@
 import { useState, useRef } from 'react'
 import { askWithImageApi } from "api/askApi";
 import { fetchTextAnswer } from 'utils/fetchAsk';
+import { useHistoryStore } from 'stores/useHistoryStore';
 
 // 질문 받아서 처리
 export function useAskQuestion({ onMessageSaved }) {
     const [isLoading, setIsLoading] = useState(false)
-    // const [loadingMap, setIsLoading] = useState(new Map())
     const [error, setError] = useState('')
     const [assistant, setAssistant] = useState('')
+    // const [isStreamingStarted, setIsStreamingStarted] = useState(false)
+    // const [isStreamingDone, setIsStreamingDone] = useState(false)
     const controllerRef = useRef(null)
     const bufferRef = useRef('')
+    const startedRef = useRef('')
+    const { addChatId, addChatTitle, setRequestchatId } = useHistoryStore() 
 
-    const askWithText = async (question, chatId, onBeforeStart) => {
+    const askWithText = async (question, chatId, initialAsk, onBeforeStart) => {
         if (!question.trim()) return
-
+        
         setIsLoading(true)
         bufferRef.current = ''
-
         controllerRef.current = new AbortController()
+        
         const signal = controllerRef.current.signal
-
+        
         try {
             onBeforeStart?.()
 
@@ -31,6 +35,16 @@ export function useAskQuestion({ onMessageSaved }) {
             }
             await fetchTextAnswer(data, signal, (chunk) => {
                 bufferRef.current += chunk
+                if (!startedRef.current && initialAsk) {
+                    // 스트림 응답 시작 시점 > 새 질문 페이지일 경우 질문 내역 리스트에 타이틀 추가
+                    startedRef.current = true
+                    addChatId(chatId)
+                    addChatTitle({
+                        chatId: chatId,
+                        title: data.title,
+                        titleIsLatex: false,
+                    })
+                }
                 setAssistant(bufferRef.current)
             })
 
@@ -45,6 +59,7 @@ export function useAskQuestion({ onMessageSaved }) {
             }
         } finally {
             setIsLoading(false)
+            setRequestchatId(null)
             setAssistant('')
         }
     }
@@ -81,5 +96,5 @@ export function useAskQuestion({ onMessageSaved }) {
 
     const abort = () => controllerRef.current?.abort()
 
-    return { isLoading, assistant, askWithText, askWithFile, abort }
+    return { isLoading, error, assistant, askWithText, askWithFile, abort }
 }

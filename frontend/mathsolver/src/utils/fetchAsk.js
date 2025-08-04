@@ -9,7 +9,8 @@ export const fetchTextAnswer = async (data, signal, onChunk) => {
     while (true) {
         const { done, value } = await reader.read()
         if (done) break
-        const res = decoder.decode(value, { stream: true })
-        onChunk(res) // 스트리밍으로 한 덩어리 처리
+
+        const chunk = decoder.decode(value, { stream: true })
+        onChunk(chunk) // 스트리밍으로 한 덩어리 처리
     }
 }

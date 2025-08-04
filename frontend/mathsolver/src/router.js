@@ -3,18 +3,27 @@ import { Routes, Route, Navigate } from 'react-router-dom'
 import Graph from 'pages/Graph'
 import ChatPage from 'pages/ChatPage'
 
-function Router ({ scrollRef }) {
-    // console.log('Router', scrollRef);
+function Router () {
     return (
-        <div id="routes" style={{padding: '2rem 4rem', height: 'calc(100% - 4rem)'}}>
+        <div id="routes" style={styles.style}>
             <Routes>
                 <Route index path="/" element={<ChatPage isNewChat={true} />} />
                 <Route path="/graph" element={<Graph />} />
-                <Route path="/chat/:initialAsk/:chatId" element={<ChatPage isNewChat={false} />} />
+                <Route path="/chat/:chatId" element={<ChatPage isNewChat={false} />} />
                 <Route path="*" element={<Navigate to="/" replace />} />
             </Routes>
         </div>
     )
 }
 
+const styles= {
+    style: {
+        // padding: '2rem 4rem',
+        // height: 'calc(100% - 4rem)',
+        height: '100%',
+        overflow: 'auto',
+        scrollbarColor:'rgb(234, 236, 238)',
+        scrollbarWidth: 'thin'
+    }
+}
 export default Router

@@ -1,7 +1,7 @@
 import React from "react";
 import styled from "styled-components";
 
-function IconButton ({onClick, children, type='button', size=24, color='black', disabled=false}) {
+export const IconButton = ({onClick, children, type='button', size=24, color='black', disabled=false}) => {
     return (
         <Button onClick={onClick} type={type} $size={size} $color={color} disabled={disabled}>
             {children}
@@ -31,4 +31,3 @@ const Button = styled.button`
         color: ${props => props.$color};
     }
 `
-export default IconButton

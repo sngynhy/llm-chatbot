@@ -1,8 +1,8 @@
-import React, { useEffect, useMemo, useReducer, useRef, useState } from 'react'
-import { useNavigate, useParams } from 'react-router-dom'
+import React, { useCallback, useEffect, useMemo, useReducer, useRef, useState } from 'react'
+import { useLocation, useNavigate, useParams } from 'react-router-dom'
 import { useHistoryStore } from 'stores/useHistoryStore'
-import ChatLayout from 'components/chat/ChatLayout'
-import ChatHeader from 'components/chat/ChatHeader'
+import { ChatLayout } from 'components/chat/ChatLayout'
+import { ChatHeader } from 'components/chat/ChatHeader'
 import { ChatMessages } from 'components/chat/ChatMessages'
 import { ChatInputArea } from 'components/chat/ChatInputArea'
 import { useAskQuestion } from 'hooks/useAskQuestion'
@@ -10,8 +10,10 @@ import { useChatHistory } from 'hooks/useChatHistory'
 import { actionType, chatReducer } from 'reducers/chatReducer'
 
 function ChatPage ({ isNewChat }) {
-    const { initialAsk, chatId } = useParams()
+    const { chatId } = useParams()
     const navigate = useNavigate()
+    const location = useLocation()
+    const { initialAsk } = location.state || false
 
     const { newQuestion, setNewQuestion, clearNewQuestion,
         currentchatId, setCurrentchatId, requestchatId, setRequestchatId } = useHistoryStore()
@@ -21,31 +23,16 @@ function ChatPage ({ isNewChat }) {
     const [question, setQuestion] = useState('')
     const [file, setFile] = useState(null)
     const [isLatex, setIsLatex] = useState(false)
-
+    const [chatMessages, setChatMessages] = useState([])
+    
     const isFirstRender = useRef(true) // 최초 렌더링 체크
     const inputRef = useRef(null)
+    const layoutRef = useRef(null)
 
-    const { data, actions } = useChatHistory()
-
-    useEffect(() => {
-        // 질문 내역 페이지일 경우 채팅 메시지 목록 가져오기
-        if (chatId && !parseInt(initialAsk)) actions.getChatMessages(chatId)
-
-        return () => dispatch({type: actionType.resetMessage}) // reducer에 저장된 실시간 메세지 데이터 제거
-    }, [actions, chatId, initialAsk])
-
-    useEffect(() => {
-        if (isNewChat) setCurrentchatId(null)
-        // 새 채팅 페이지에서 넘어온 경우 아래 코드 실행
-        else if (isFirstRender.current && !isNewChat && Number(initialAsk) && newQuestion) {
-            newQuestion.type === 'text' ? setQuestion(newQuestion.value) : setFile(newQuestion.value)
-            newQuestion.type === 'text' ? askQuestion() : askWithImage()
-            isFirstRender.current = false
-        }
-    }, [newQuestion, initialAsk, isNewChat])
-
+    const { actions } = useChatHistory()
     const { isLoading, assistant, askWithText, askWithFile, abort } = useAskQuestion({
         onMessageSaved: (chatId, question, assistant, isLatex) => {
+            // reducer에 실시간 응답 저장
             dispatch({
                 type: actionType.addMessage,
                 payload: {
@@ -59,24 +46,55 @@ function ChatPage ({ isNewChat }) {
         }
     })
 
-    const chatMessages = useMemo(() => {
-        const target = data.chatMessages?.messages
-        if (target && Array.isArray(target)) {
-            const sorted = [...target].sort((a, b) => a.createdAt - b.createdAt)
-            return sorted
-        }
-        return []
-    }, [data.chatMessages])
+    const getChat = useCallback(async () => {
+        const res = await actions.getChatMessages(chatId)
+        const messages = res.messages
+        if (Array.isArray(messages)) setChatMessages(messages)
+    }, [chatId, actions])
 
-    // const mergedMessages = useMemo(() => {
-    //     console.log('mergedMessages', );
-    //     return [...chatMessages, ...streamMessages].sort(
-    //     (a, b) => a.createdAt - b.createdAt
-    // );
-    // }, [chatMessages, streamMessages])
+    useEffect(() => {
+        // chatId 변경 감지
+        if (currentchatId !== chatId) setCurrentchatId(chatId)
+        return () => {
+            if (chatId) dispatch({type: actionType.resetMessage}) // unmount 시 reducer에 저장된 실시간 메세지 초기화
+        }
+    }, [chatId])
+
+    useEffect(() => {
+        // 질문 내역 페이지일 경우 채팅 메시지 가져오기
+        if (!isNewChat && !initialAsk) getChat()
+    }, [isNewChat, initialAsk, getChat])
+
+    useEffect(() => {
+        // 새 질문 페이지일 경우
+        if (isNewChat) {
+            if (currentchatId !== null) setCurrentchatId(null)
+            if (chatMessages.length > 0) setChatMessages([])
+            return
+        }
+        
+        // 새 질문 페이지에서 넘어온 경우 질문 전송
+        if (initialAsk && isFirstRender.current) {
+            if (!newQuestion) {
+                navigate('/')
+                return
+            }
+
+            const { type, value } = newQuestion
+            if (type === 'text') {
+                setQuestion(value)
+                askQuestion()
+            } else {
+                setFile(value)
+                askWithImage()
+            }
+            isFirstRender.current = false
+        }
+
+    }, [newQuestion, initialAsk, isNewChat])
 
     const askNewQuestion = () => {
-        console.log('askNewQuestion', question);
+        // console.log('🎃 askNewQuestion', question);
         
         if (!file && question === undefined) return inputRef.current.focus()
 
@@ -84,17 +102,18 @@ function ChatPage ({ isNewChat }) {
         setNewQuestion(param)
         const chatId = Date.now()
         setCurrentchatId(chatId)
-        navigate(`/chat/1/${chatId}`)
+        navigate(`/chat/${chatId}`, { state: { initialAsk: true }})
     }
 
     const askQuestion = async () => {
-        console.log('✨askQuestion', );
-            
+        
         const questionCopy = newQuestion?.value || question
         if (!questionCopy.trim()) return inputRef.current.focus()
-
-        await askWithText(questionCopy, chatId, () => {
+            
+        // console.log('✨askQuestion', questionCopy);
+        await askWithText(questionCopy, chatId, initialAsk, () => {
             setRequestchatId(chatId)
+            // reducer에 실시간 질문 저장
             dispatch({
                 type: actionType.addMessage,
                 payload: {
@@ -121,7 +140,7 @@ function ChatPage ({ isNewChat }) {
     }
 
     return (
-        <ChatLayout isNewChat={isNewChat} chatId={chatId}>
+        <ChatLayout isNewChat={isNewChat} chatId={chatId} ref={layoutRef}>
 
             {isNewChat
                 ? <ChatHeader />
@@ -130,7 +149,7 @@ function ChatPage ({ isNewChat }) {
                     messages={[...chatMessages, ...streamMessages]}
                     assistant={assistant}
                     isLatex={isLatex}
-                    currentchatId={currentchatId}
+                    currentchatId={chatId}
                     requestchatId={requestchatId}
                 />
             }

@@ -7,7 +7,7 @@ from dbConnect import save_chat
 from datetime import datetime, timezone
 
 OLLAMA_URL = "http://localhost:11434/api/generate" # Ollama API 서버
-MODEL_NAME = "gemma:2b" # 설치한 모델 이름 > mistral, gemma:27b, wizard-math 등
+MODEL_NAME = "gemma:2b" # 설치한 모델 이름 > mistral, gemma:7b, wizard-math 등
 headers = {
     "Content-Type": "text/event-stream", # 스트리밍 데이터임을 명시 (SSE 등)
     "X-Accel-Buffering": "no",  # Nginx의 응답 버퍼링 방지
@@ -116,7 +116,6 @@ def chat_completion_with_ollama(question, chat_meta, stream=True):
     def response_wrapper():
         try:
             yield from generate()
-            print('꾸엥')
             chat_data = {
                 "chatId": chat_meta.get("chatId"),
                 "userId": "user1", # chat_meta.get("userId")

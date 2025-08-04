@@ -22,13 +22,13 @@ def save_chat(data):
             "updatedAt": datetime.now(timezone.utc),
         },
         "$setOnInsert": {
-            "userId": user_id,
+            "userId": data["userId"],
             "chatId": data["chatId"],
             "title": data.get("title", ""),
             "titleIsLatex": data.get("titleIsLatex", False),
             "createdAt": datetime.now(timezone.utc),
-            # "is_active": 1,
-            "is_deleted": 0,
+            # "isActive": 1,
+            "isDeleted": 0,
         },
         "$push": {
             "messages": {"$each": new_message},
@@ -45,7 +45,7 @@ def save_chat(data):
 
 # chat 조회
 def get_chat(chat_id):
-    return collection.find_one({"userId": user_id, "chatId": chat_id}, {"_id": 0})
+    return collection.find_one({"userId": user_id, "chatId": chat_id, "isDeleted": 0}, {"_id": 0})
 
 # 전체 세션 목록 조회
 def get_all_chats():
@@ -53,20 +53,20 @@ def get_all_chats():
 
 # 타이틀만 추출
 def get_all_titles():
-    return list(collection.find({"userId": user_id, "is_deleted": 0}, {'_id': 0, 'chatId': 1, 'title': 1, 'titleIsLatex': 1}).sort("createdAt", DESCENDING))
+    return list(collection.find({"userId": user_id, "isDeleted": 0}, {'_id': 0, 'chatId': 1, 'title': 1, 'titleIsLatex': 1}).sort("createdAt", DESCENDING))
 
 # chat 삭제 > chat_id 기준으로 해당 데이터 비활성으로 처리
 def delete_chat(chat_id):
     return collection.update_one(
         {'chatId': chat_id},
-        {'$set': {'is_deleted': 1}}
+        {'$set': {'isDeleted': 1}}
     )
 
 # 특정 문자열이 포함된 문서 검색 (대소문자 구분 X)
-# def search(keyword):
-#     results = collection.find({
-#         'content': {
-#             "$regex": '^' + keyword + '^',
-#             "$options": "i"  # 'i'는 대소문자 무시 (ignore case)
-#         }
-#     })
+def search(keyword):
+    results = collection.find({
+        'content': {
+            "$regex": '^' + keyword + '^',
+            "$options": "i"  # 'i'는 대소문자 무시 (ignore case)
+        }
+    })
