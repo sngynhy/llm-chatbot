@@ -1,24 +1,25 @@
-import React, { useEffect, useRef, useImperativeHandle, forwardRef } from "react";
+import React, {
+  useEffect,
+  useRef,
+  useImperativeHandle,
+  forwardRef,
+} from "react";
 import { IconButton } from "components/ui/IconButton";
 import { GoMoveToBottom } from "react-icons/go";
 import { ChatContainer } from "styles/Common";
 
 export const ChatLayout = forwardRef(({ isNewChat, chatId, children }, ref) => {
-  // console.log('ChatLayout', isNewChat, chatId, children);
-  const chatRef = useRef(null)
+  const chatRef = useRef(null);
   const scrollToBottom = () => {
-      chatRef.current?.scrollIntoView({
-          behavior: 'smooth', // 'instant',
-          block: 'end',
-      })
-  }
+    chatRef.current?.scrollIntoView({
+      behavior: "instant", // 'instant', "smooth"
+      block: "end",
+    });
+  };
   // 부모에서 사용할 수 있도록 scrollToBottom 노출
   useImperativeHandle(ref, () => ({
-      scrollToBottom,
-  }))
-  // useEffect(() => {
-  //   if (!isNewChat) scrollToBottom()
-  // }, [chatId])
+    scrollToBottom,
+  }));
 
   return (
     <ChatContainer id="chat-container" $isNewChat={isNewChat}>
@@ -28,5 +29,5 @@ export const ChatLayout = forwardRef(({ isNewChat, chatId, children }, ref) => {
         <IconButton><GoMoveToBottom onClick={scrollToBottom}/></IconButton>
       </div>} */}
     </ChatContainer>
-  )
-})
+  );
+});
