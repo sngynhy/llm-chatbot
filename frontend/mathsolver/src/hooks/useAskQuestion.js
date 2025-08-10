@@ -51,7 +51,7 @@ export function useAskQuestion({ onMessageSaved }) {
       onMessageSaved?.(chatId, question, bufferRef.current, false);
     } catch (err) {
       if (err.name === "AbortError") {
-        // console.log('요청 취소');
+        console.log("요청 취소", bufferRef.current);
         onMessageSaved?.(chatId, question, bufferRef.current, false);
       } else {
         console.log("요청 실패:", err);
@@ -66,7 +66,7 @@ export function useAskQuestion({ onMessageSaved }) {
     }
   };
 
-  const askWithFile = async (file, chatId, onBeforeStart) => {
+  const askWithFile = async (file, chatId, initialAsk, onBeforeStart) => {
     if (!file) return;
 
     setIsStreaming(true);

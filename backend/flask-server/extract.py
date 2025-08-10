@@ -6,6 +6,8 @@ from pix2tex.cli import LatexOCR
 import re
 from pylatexenc.latexwalker import LatexWalker, LatexWalkerParseError
 from sympy.parsing.latex import parse_latex
+import easyocr
+import os
 
 # 모델 초기화 (최초 1회만 로딩하면 됨)
 model = LatexOCR()
@@ -78,32 +80,38 @@ def check_math_meaning(latex_str):
 #     elif:
 #         return
 
+reader = easyocr.Reader(['en', 'ko'])  # 영어 + 한글 지원
+# 텍스트 추출 by EasyOCR
+def extract_text_w_easy(image):
+    image_path = os.path.join('static', image.filename)
+    image.save(image_path)
+    results = reader.readtext(image_path)
+    return ' '.join([text[1] for text in results])
 
 # 텍스트 추출 by PaddleOCR
-def extract_text_w_paddle(file):
-    return ""
+# def extract_text_w_paddle(file):
+#     return ""
 
-
-pytesseract.pytesseract.tesseract_cmd = r"C:\Program Files\Tesseract-OCR\tesseract"
+# pytesseract.pytesseract.tesseract_cmd = r"C:\Program Files\Tesseract-OCR\tesseract"
 
 # 텍스트 추출 by Tesseract
-def extract_text(file):
-    try:
-        # Pillow로 이미지 열고
-        image = Image.open(file.stream)
+# def extract_text_w_tesseract(file):
+#     try:
+#         # Pillow로 이미지 열고
+#         image = Image.open(file.stream)
 
-        if image is None:
-            return jsonify({'error': 'Inavaild image'}), 400
+#         if image is None:
+#             return jsonify({'error': 'Inavaild image'}), 400
         
-        image = preprocess_image(image)
+#         image = preprocess_image(image)
 
-        # Tesseract로 문자 인지
-        text = pytesseract.image_to_string(image, lang='kor+eng')
-        return text
-    except Exception as e:
-        return jsonify({'error': str(e)}), 500
+#         # Tesseract로 문자 인지
+#         text = pytesseract.image_to_string(image, lang='kor+eng')
+#         return text
+#     except Exception as e:
+#         return jsonify({'error': str(e)}), 500
 
-def preprocess_image(image):
+# def preprocess_image(image):
     # 그레이스케일 변환
     gray = ImageOps.grayscale(image)
     

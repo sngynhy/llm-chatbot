@@ -4,6 +4,7 @@ requests
 sympy
 latex2sympy2
 pytesseract
+EasyOCR
 pillow
 pix2tex[api]
 pylatexenc

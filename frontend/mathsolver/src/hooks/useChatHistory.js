@@ -9,7 +9,7 @@ export function useChatHistory() {
     chatMessages: false,
     remove: false,
   });
-  const [error, setError] = useState();
+  const [error, setError] = useState(null);
   const [chatMessages, setChatMessages] = useState([]);
   const { setChatTitles, removeTitle } = useHistoryStore();
 
@@ -20,6 +20,7 @@ export function useChatHistory() {
       setIsLoading((prev) => ({ ...prev, titles: true }));
       const res = await fetchChatTitles();
       setChatTitles(res);
+      setError(null);
     } catch (err) {
       setError(err);
     } finally {
@@ -27,19 +28,23 @@ export function useChatHistory() {
     }
   }, [setChatTitles]);
 
-  const getChatMessages = useCallback(async (chatId) => {
-    try {
-      setIsLoading((prev) => ({ ...prev, chat: true }));
-      const res = await fetchChat(chatId);
-      setChatMessages(res);
-      return res;
-    } catch (err) {
-      setError(err);
-      if (err.status === 404) navigate("/");
-    } finally {
-      setIsLoading((prev) => ({ ...prev, chat: false }));
-    }
-  }, []);
+  const getChatMessages = useCallback(
+    async (chatId) => {
+      try {
+        setIsLoading((prev) => ({ ...prev, chatMessages: true }));
+        const res = await fetchChat(chatId);
+        setChatMessages(res);
+        setError(null);
+        return res;
+      } catch (err) {
+        setError(err);
+        if (err.status === 404) navigate("/");
+      } finally {
+        setIsLoading((prev) => ({ ...prev, chatMessages: false }));
+      }
+    },
+    [navigate]
+  );
 
   const removeChat = useCallback(
     async (chatId) => {
@@ -47,6 +52,7 @@ export function useChatHistory() {
         setIsLoading((prev) => ({ ...prev, remove: true }));
         await deleteChat(chatId);
         removeTitle(chatId);
+        setError(null);
       } catch (err) {
         setError(err);
       } finally {

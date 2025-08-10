@@ -10,7 +10,7 @@ user_id = "user1" # 인증 기능 추가 후 수정
 
 # chat 저장
 def save_chat(data):
-    # print('save_chat', data)
+    print('save_chat', data)
 
     new_message = data.get("messages", [])
     if not new_message:

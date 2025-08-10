@@ -1,19 +1,43 @@
-from flask import Flask, request, jsonify
+from flask import Flask, request, jsonify, g
 from flask_cors import CORS
-from callOllama import stream_prompt_to_ollama, chat_completion_with_ollama, stream_translate
-from extract import extract_text, extract_expression, preprocess_latex, check_latex_syntax, check_math_meaning
+from callOllama import chat_completion_with_ollama
+from extract import extract_text_w_easy, extract_expression, preprocess_latex, check_latex_syntax, check_math_meaning
 from calculator import process_sympy_expr
 from dbConnect import save_chat, get_chat, get_all_chats, get_all_titles, delete_chat
-from sympy import latex
+# from sympy import latex
+from werkzeug.exceptions import ClientDisconnected
+from utils import is_client_connected
+import time
 
 app = Flask(__name__)
 CORS(app)  # React와의 CORS 문제 해결
+
+# 클라이언트 연결 상태를 추적하는 미들웨어
+@app.before_request
+def before_request():
+    print('요청 처리 전')
+    g.start_time = time.time()
+    g.client_connected = True
+
+@app.after_request
+def after_request(response):
+    print('요청 처리 후')
+    # 응답 시간 로깅
+    if hasattr(g, 'start_time'):
+        duration = time.time() - g.start_time
+        print(f"요청 처리 시간: {duration:.3f}초")
+    return response
+
+# 클라이언트 연결 해제 감지 미들웨어
+@app.errorhandler(ClientDisconnected)
+def handle_client_disconnect(error):
+    print("🔌 클라이언트 연결이 해제되었습니다.", error)
+    return "", 499  # Client Closed Request 상태 코드
 
 @app.route("/api/ask", methods=["POST"])
 def chat_api():
     try:
         data = request.json
-        print('chat_api', data)
 
         if not data or "question" not in data:
             return jsonify({"status": "error", "message": "Missing 'question' field"}), 400
@@ -21,12 +45,24 @@ def chat_api():
         question = data["question"].strip()
 
         return chat_completion_with_ollama(question, data)
-        # return stream_prompt_to_ollama(question)
+    except ClientDisconnected:
+        print("🔌 채팅 API 요청 중 클라이언트 연결이 해제되었습니다.")
+        return "", 499
     except Exception as e:
         return jsonify({"status": "error", "message": str(e)}), 500
-
+    
 @app.route("/api/ask/file", methods=["POST"])
 def predict():
+    print('request', request);
+    if 'image' not in request.files:
+        return jsonify({'error': 'No image uploaded'}), 400
+    
+    image = request.files['image']
+    extracted_text = extract_text_w_easy(image)
+    return jsonify({'text': extracted_text}) 
+
+@app.route("/api/ask/file/math", methods=["POST"])
+def predict_math():
     # 첨부파일 확인
     if 'file' not in request.files:
         return jsonify({"error": "No image uploaded"}), 400
