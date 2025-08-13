@@ -1,29 +1,25 @@
-import React, { useEffect, useState } from "react";
-import { Link, useMatch, useNavigate } from "react-router-dom";
+import React, { useEffect } from "react";
+import { Link, useNavigate } from "react-router-dom";
 import styled from "styled-components";
-import logo from "assets/logo/logo.svg";
-import { LuCopyPlus } from "react-icons/lu";
 import { BsLayoutSidebar } from "react-icons/bs";
+import { CiEdit } from "react-icons/ci";
+import { CiSearch } from "react-icons/ci";
 import { IconButton } from "components/ui/IconButton";
-import { useStyleStore } from "stores/useStyleStore";
+import { useLocalStore } from "stores/useLocalStore";
 import { useHistoryStore } from "stores/useHistoryStore";
 import { useChatHistory } from "hooks/useChatHistory";
 import { SideHistoryList } from "./SideHistoryList";
-import { IoSearch } from "react-icons/io5";
-import { mainBackColor } from "styles/Common";
+import { hoverBackColor, selectedBackColor } from "styles/Common";
+import Logo from "./ui/Logo";
 
 function Sidebar() {
-  const { openSidebar, setOpenSidebar } = useStyleStore();
+  const { openSidebar, setOpenSidebar } = useLocalStore();
   const { currentchatId, chatTitles } = useHistoryStore();
   const { actions } = useChatHistory();
 
   useEffect(() => {
     actions.getChatTitles();
   }, []);
-
-  const newChatMatch = useMatch("/");
-  const graphMatch = useMatch("/graph");
-  const chatMatch = useMatch("/chat/:chatId");
 
   const navigate = useNavigate();
   const removeChat = async (chatId: string) => {
@@ -33,97 +29,92 @@ function Sidebar() {
 
   return (
     <Aside $openSidebar={openSidebar}>
-      <AsideHeader className="aside-header">
-        <div className="logo">
+      <AsideHeader $openSidebar={openSidebar}>
+        <div className="aside-header">
           <Link to="/">
-            <img src={logo} alt="로고 아이콘" />
+            <Logo size="2rem" color="black" />
           </Link>
           <IconButton
-            size={18}
+            size="18px"
             color="gray"
             style={{ alignItems: "baseline" }}
             hoverStyle={{ color: "black" }}
-            onClick={() => setOpenSidebar(false)}
+            onClick={() => setOpenSidebar(!openSidebar)}
           >
             <BsLayoutSidebar />
           </IconButton>
         </div>
         <div className="menu">
-          <div>
-            <Link
-              to="/"
-              style={{
-                color: Boolean(newChatMatch) ? "black" : "rgb(59, 59, 59)",
-              }}
-            >
-              <IconButton
-                size={20}
-                color={Boolean(newChatMatch) ? "black" : "rgb(59, 59, 59)"}
-              >
-                <LuCopyPlus />
-              </IconButton>
-              새 질문
-            </Link>
-          </div>
-          {/* <div>
-                        <Link to='/graph' style={{color: Boolean(graphMatch) ? 'black' : 'rgb(59, 59, 59)'}}>
-                            <IconButton size={20} color={Boolean(graphMatch) ? 'black' : 'rgb(59, 59, 59)'}><LuChartSpline /></IconButton>그래프 그리기
-                        </Link>
-                    </div> */}
-          <div>
-            <Link to="/" style={{ color: "rgb(59, 59, 59)" }}>
-              <IconButton size={20} color={"rgb(59, 59, 59)"}>
-                <IoSearch />
-              </IconButton>
-              채팅 검색
-            </Link>
-          </div>
+          <Link to="/" style={{ color: styles.textColor }}>
+            <IconButton size="24px" color={styles.textColor}>
+              <CiEdit />
+            </IconButton>
+            <span>새 질문</span>
+          </Link>
+          <Link to="/search" style={{ color: styles.textColor }}>
+            <IconButton size="24px" color={styles.textColor}>
+              <CiSearch />
+            </IconButton>
+            <span>채팅 검색</span>
+          </Link>
         </div>
       </AsideHeader>
 
-      <SideHistoryList
-        chatMatch={chatMatch}
-        currentchatId={currentchatId}
-        chatTitles={chatTitles}
-        removeSubmit={(chatId) => removeChat(chatId)}
-      />
+      {openSidebar && (
+        <SideHistoryList
+          currentchatId={currentchatId}
+          chatTitles={chatTitles}
+          removeSubmit={(chatId) => removeChat(chatId)}
+        />
+      )}
     </Aside>
   );
 }
 
 export default Sidebar;
 
+const styles = {
+  textColor: "rgb(59, 59, 59)",
+};
+
 interface AsideProps {
   $openSidebar: boolean;
 }
 const Aside = styled.aside<AsideProps>`
-  border-radius: 1rem;
   display: flex;
   flex-direction: column;
   flex-shrink: 0;
-  padding: ${(props) => (props.$openSidebar ? "0 0.6rem" : 0)};
-  width: ${(props) => (props.$openSidebar ? "240px" : "0px")};
+  gap: 1.5rem;
+  padding: 1rem 0.5rem;
+  width: ${(props) => (props.$openSidebar ? "15rem" : "40px")};
   height: 100%;
   position: relative;
-  background-color: white;
-  box-shadow: 0 2px 16px 0 #00000008;
-  transform: ${(props) =>
-    props.$openSidebar ? "translateX(0)" : "translateX(-104%)"};
+  background-color: #ffffff;
+  border-right: 1px solid #e0e0e0;
   overflow-y: auto;
   overflow-x: hidden;
-  // transition: transform .7s ease-in-out;
+  transition: width 0.3s ease, transform 0.3s ease;
 
   scrollbar-color: rgb(234, 236, 238) #fff;
   scrollbar-width: auto; // thin
 `;
-const AsideHeader = styled.div`
+
+interface AsideHeaderProps {
+  $openSidebar: boolean;
+}
+
+const AsideHeader = styled.div<AsideHeaderProps>`
+  display: flex;
+  flex-direction: column;
+  flex-shrink: 0;
+  gap: 1.5rem;
   position: sticky;
   top: 0;
-  background-color: #fff;
+  background-color: #ffffff;
   z-index: 10;
 
-  & > .logo {
-    padding: 1rem 0;
+  & > .aside-header {
+    padding: 0 0.5rem;
     display: flex;
     justify-content: space-between;
     height: 2rem;
@@ -134,23 +125,27 @@ const AsideHeader = styled.div`
   }
 
   & > .menu {
-    padding: 1rem 0 2rem;
     cursor: pointer;
     font-size: 1rem;
 
-    & > div {
-      padding: 8px 10px;
+    & > a {
+      padding: 0.5rem;
       border-radius: 0.6rem;
 
-      & > a {
-        display: flex;
-        gap: 8px;
-        text-decoration: none;
-        width: 100%;
+      display: flex;
+      gap: 8px;
+      text-decoration: none;
+
+      & > span {
+        display: ${(props) => (props.$openSidebar ? "block" : "none")};
       }
 
       &:hover {
-        background-color: ${mainBackColor};
+        background-color: ${hoverBackColor};
+      }
+
+      &:active {
+        background-color: ${selectedBackColor};
       }
     }
   }

@@ -70,7 +70,7 @@ export const ChatInputArea = ({
     <Conatainer
       id="input-area"
       tabIndex={0}
-      style={isNewChat ? undefined : { position: "sticky", bottom: "1rem" }}
+      style={isNewChat ? undefined : { position: "sticky", bottom: "2rem" }}
       onSubmit={handleSubmit}
     >
       {/* 파일 업로드 */}
@@ -103,7 +103,7 @@ export const ChatInputArea = ({
 
       {/* 전송 버튼 OR 스트리밍 중일 때 중지 버튼 */}
       {isStreaming ? (
-        <IconButton size={isHovered ? 30 : 24}>
+        <IconButton size={isHovered ? "30px" : "24px"}>
           {isHovered ? (
             <IoStopCircleSharp
               onMouseLeave={() => setIsHovered(false)}
@@ -139,7 +139,6 @@ const Conatainer = styled.form`
   border: 1px solid lightgray;
   box-shadow: 0 2px 16px 0 #00000008;
   height: 2rem;
-  // margin: 0 10%;
 
   &:focus-within {
     border: 1px solid ${mainColor};

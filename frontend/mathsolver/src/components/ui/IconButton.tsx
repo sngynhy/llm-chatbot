@@ -4,7 +4,7 @@ import styled from "styled-components";
 interface IconButtonProps {
   children: React.ReactNode;
   type?: "button" | "submit" | "reset";
-  size?: number;
+  size?: string;
   color?: string;
   style?: React.CSSProperties;
   hoverStyle?: React.CSSProperties;
@@ -15,7 +15,7 @@ interface IconButtonProps {
 export const IconButton = ({
   children,
   type = "button",
-  size = 24,
+  size = "24px",
   color = "black",
   style,
   hoverStyle,
@@ -38,7 +38,7 @@ export const IconButton = ({
 };
 
 interface ButtonProps {
-  $size: number;
+  $size: string;
   $color: string;
   $hoverStyle?: React.CSSProperties;
 }
@@ -67,8 +67,8 @@ const Button = styled.button<ButtonProps>`
 
   & > svg,
   & > img {
-    width: ${(props) => props.$size}px;
-    height: ${(props) => props.$size}px;
+    width: ${(props) => props.$size};
+    height: ${(props) => props.$size};
     color: ${(props) => props.$color};
   }
 `;

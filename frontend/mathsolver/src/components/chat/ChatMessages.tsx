@@ -21,7 +21,8 @@ export const ChatMessages = ({
 }: ChatMessagesProps) => {
   // console.log("ChatMessages", messages);
   return (
-    <div id="chat" style={{ minHeight: "calc(100vh - 10rem)" }}>
+    <div id="chat" style={{ minHeight: "calc(100vh - 5rem)" }}>
+      {/* <div id="chat"> */}
       {messages.map((msg: ChatMessage, i: number) => (
         <ChatBubble key={i} message={msg} />
       ))}

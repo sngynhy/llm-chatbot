@@ -6,7 +6,6 @@ from calculator import process_sympy_expr
 from dbConnect import save_chat, get_chat, get_all_chats, get_all_titles, delete_chat
 # from sympy import latex
 from werkzeug.exceptions import ClientDisconnected
-from utils import is_client_connected
 import time
 
 app = Flask(__name__)
@@ -15,13 +14,11 @@ CORS(app)  # React와의 CORS 문제 해결
 # 클라이언트 연결 상태를 추적하는 미들웨어
 @app.before_request
 def before_request():
-    print('요청 처리 전')
     g.start_time = time.time()
     g.client_connected = True
 
 @app.after_request
 def after_request(response):
-    print('요청 처리 후')
     # 응답 시간 로깅
     if hasattr(g, 'start_time'):
         duration = time.time() - g.start_time

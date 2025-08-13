@@ -75,7 +75,6 @@ function ChatPage({ isNewChat }: { isNewChat: boolean }) {
   }, []);
 
   useEffect(() => {
-    console.log("useLayoutEffect");
     // chatId 변경 감지
     if (currentchatId !== chatId) setCurrentchatId(chatId);
 
@@ -94,7 +93,7 @@ function ChatPage({ isNewChat }: { isNewChat: boolean }) {
   }, [chatId]);
 
   useEffect(() => {
-    console.log("useEffect 111");
+    // console.log("useEffect 111");
     // 질문 내역 페이지일 경우 채팅 메시지 가져오기
     if (!isNewChat && !initialAsk) {
       getChat().then(() => {
@@ -107,7 +106,7 @@ function ChatPage({ isNewChat }: { isNewChat: boolean }) {
   }, [isNewChat, initialAsk, getChat]);
 
   useEffect(() => {
-    console.log("useEffect 222");
+    // console.log("useEffect 222");
     // 새 질문 페이지일 경우
     if (isNewChat) {
       if (currentchatId !== null) setCurrentchatId(null);
@@ -117,7 +116,6 @@ function ChatPage({ isNewChat }: { isNewChat: boolean }) {
 
     // 새 질문 페이지에서 넘어온 경우 질문 전송
     if (initialAsk && isFirstRender.current) {
-      console.log("새 질문 페이지에서 넘어옴");
       if (!newQuestion) {
         navigate("/");
         return;
@@ -164,7 +162,7 @@ function ChatPage({ isNewChat }: { isNewChat: boolean }) {
 
   // assistant 변경 감지 (스트리밍 중 실시간 스크롤)
   useEffect(() => {
-    console.log("useEffect 333");
+    // console.log("useEffect 333");
     if (isStreaming && assistant) {
       smartScrollToBottom();
     }
@@ -172,7 +170,7 @@ function ChatPage({ isNewChat }: { isNewChat: boolean }) {
 
   // 컴포넌트 정리 (타이머 정리)
   useEffect(() => {
-    console.log("useEffect 444");
+    // console.log("useEffect 444");
     return () => {
       if (scrollTimeoutRef.current) {
         clearTimeout(scrollTimeoutRef.current);
@@ -182,7 +180,7 @@ function ChatPage({ isNewChat }: { isNewChat: boolean }) {
 
   // 메시지가 추가될 때마다 스크롤을 최하단으로 이동
   useEffect(() => {
-    console.log("useEffect 555");
+    // console.log("useEffect 555");
     if (
       !isNewChat &&
       (chatMessages.length > 0 ||

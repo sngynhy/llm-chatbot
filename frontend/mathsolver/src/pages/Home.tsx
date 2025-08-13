@@ -2,10 +2,10 @@ import React from "react";
 import styled from "styled-components";
 import Sidebar from "components/Sidebar";
 import Content from "components/Content";
-import { useStyleStore } from "stores/useStyleStore";
+import { useLocalStore } from "stores/useLocalStore";
 
 function Home() {
-  const { openSidebar } = useStyleStore();
+  const { openSidebar } = useLocalStore();
 
   return (
     <Container $openSidebar={openSidebar}>
@@ -19,10 +19,17 @@ interface ContainerProps {
 }
 const Container = styled.div<ContainerProps>`
   display: flex;
-  gap: ${(props) => (props.$openSidebar ? "1rem" : 0)};
-  height: calc(100vh - 2rem);
-  height: calc(100dvh - 2rem);
+  height: 100dh;
+  height: 100dvh;
   overflow: hidden;
-  padding: 1rem;
+
+  // display: grid;
+  // gap: 0.1rem;
+  // transition: width 0.3s ease, transform 0.3s ease;
+  // grid-template-rows: 1fr;
+  // grid-template-areas: "sidebar content";
+  // padding: 0.8rem;
 `;
+// grid-template-columns: ${(props) =>
+//   props.$openSidebar ? "17rem 1fr" : "3rem 1fr"};
 export default Home;

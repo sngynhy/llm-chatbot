@@ -24,6 +24,7 @@ export const useHistoryStore = create(
         set((state) => ({
           chatIds: titles.map((el) => el.chatId),
           chatTitles: titles,
+          // chatTitles: [...titles, ...titles, ...titles, ...titles, ...titles],
         })),
       addChatId: (chatId: string) =>
         set((state) => ({ chatIds: [...state.chatIds, chatId] })),

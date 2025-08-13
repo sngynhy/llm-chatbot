@@ -7,7 +7,7 @@ from werkzeug.exceptions import ClientDisconnected
 from utils import is_client_connected
 
 OLLAMA_URL = "http://localhost:11434/api/generate" # Ollama API 서버
-MODEL_NAME = "mistral" # 설치한 모델 이름 > mistral, gemma:7b, wizard-math 등
+MODEL_NAME = "gemma:2b" # 설치한 모델명 > mistral, gemma:7b, wizard-math 등
 headers = {
     "Content-Type": "text/event-stream", # 스트리밍 데이터임을 명시 (SSE 등)
     "X-Accel-Buffering": "no",  # Nginx의 응답 버퍼링 방지
@@ -44,7 +44,6 @@ def chat_completion_with_ollama(question, chat_meta, stream=True):
     # (iterator는 `__iter__()`와 __next__() 메서드를 통해 순회 가능한 객체)
     def generate():
         try:
-            print('시작!')
             # ChatCompletion API 호출 (Ollama를 OpenAI 라이브러리처럼 사용)
             response = client.chat.completions.create(
                 model=MODEL_NAME,
@@ -54,34 +53,36 @@ def chat_completion_with_ollama(question, chat_meta, stream=True):
             print('응답하라!!', response)
             for chunk in response:
                 # 클라이언트 연결 상태 확인
-                if not is_client_connected():
-                    print("🔌 클라이언트 연결이 해제되었습니다. 스트리밍을 중단합니다.")
-                    break
+                # if not is_client_connected():
+                #     print("🔌 클라이언트 연결이 해제되었습니다. 스트리밍을 중단합니다.")
+                #     break
                 
                 content = chunk.choices[0].delta.content or ""
                 if (content):
-                    # print(content, end="", flush=True)  # 실시간 출력
+                    # 문장 끝 기호들 감지하여 줄바꿈 처리 (점, 느낌표, 물음표)
+                    sentence_endings = ['.', '!', '?']
+                    if any(content.endswith(ending) for ending in sentence_endings):
+                        content += '\n'
+
+                    print(content, end="", flush=True)  # 실시간 출력
                     context["full_response"] += content
                     yield content.encode("utf-8")
                     
                     # 각 청크 전송 후 연결 상태 재확인
-                    if not is_client_connected():
-                        print("🔌 청크 전송 후 클라이언트 연결이 해제되었습니다.")
-                        break
+                    # if not is_client_connected():
+                    #     print("🔌 청크 전송 후 클라이언트 연결이 해제되었습니다.")
+                    #     break
                         
                     time.sleep(0.05)
                     # time.sleep()이 필요한 이유
                     # 브라우저 렌더링 시간 확보 > chunk 사이의 시간을 확보하여 보다 더 안정적으로 표시할 수 있도록
                     # 서버 부하 분산 & CPU 점유율 낮춤 > 응답이 너무 빨리 돌면 서버는 계속 루프를 돌면서 CPU를 많이 점유하게 됨
-        except ClientDisconnected:
-            print("🔌 클라이언트가 연결을 해제했습니다.")
-            return
         except Exception as e:
             print("💡 에러 발생 >", str(e))
             # yield f"\n[서버 오류]: {str(e)}\n"
             return jsonify({"error": str(e)}), 500
         finally:
-            print("🔌 연결 종료", context["full_response"], "EEEEEEEEENNNNNNNDDDDDDDDD")
+            print("🔌 연결 종료")
 
     # heartbeat 체크를 위한 함수
     # def check_client_heartbeat():
@@ -95,11 +96,6 @@ def chat_completion_with_ollama(question, chat_meta, stream=True):
     def response_wrapper():
         try:
             yield from generate()
-            
-            # 클라이언트가 연결을 해제한 경우 DB 저장하지 않음
-            if not is_client_connected():
-                print("클라이언트 연결이 해제되어 DB 저장을 건너뜁니다.")
-                return
                 
             print('DB 삽입 준비 시작')
             chat_data = {

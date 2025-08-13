@@ -11,7 +11,7 @@ export const FilePreview = ({ file, onClear }: FilePreviewProps) => {
     <div id="file">
       <span onClick={onClear}>
         <div>{file?.name}</div>
-        <IconButton size={15} color="gray">
+        <IconButton size="1rem" color="gray">
           <CgMathPlus style={{ transform: "rotate(45deg)" }} />
         </IconButton>
       </span>

@@ -1,5 +1,5 @@
 import { useState, useRef } from "react";
-import { askWithImageApi } from "api/askApi";
+import { askWithImageApi } from "api/streamApi";
 import { fetchTextAnswer } from "utils/fetchAsk";
 import { useHistoryStore } from "stores/useHistoryStore";
 

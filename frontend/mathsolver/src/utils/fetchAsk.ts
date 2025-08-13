@@ -1,13 +1,13 @@
-import { askQuestionApi } from "api/askApi";
-import { AskQuestionRequest } from "types/api";
+import { streamApi } from "api/streamApi";
+import { StreamRequest } from "types/api";
 
 // API에서 데이터를 스트리밍으로 받아와 넘겨줌
 export const fetchTextAnswer = async (
-  data: AskQuestionRequest,
+  data: StreamRequest,
   signal: AbortSignal,
   onChunk: (chunk: string) => void
 ) => {
-  const response = await askQuestionApi(data, signal);
+  const response = await streamApi(data, signal);
   const reader = response.body.getReader();
   const decoder = new TextDecoder("utf-8");
 
