@@ -1,9 +1,9 @@
-from tkinter.constants import S
-from fastapi import APIRouter, Request
+from fastapi import APIRouter, Request, Depends
 from fastapi.responses import StreamingResponse
-from app.models.chat import StreamRequest
-from ..services.chat_stream_service import ChatStreamService
-# from starlette.exceptions import ClientDisconnect
+from app.models import StreamRequest
+from app.services import ChatStreamService
+from openai import AsyncOpenAI
+from app.lifespan.connection import get_ollama
 
 router = APIRouter()
 
@@ -16,19 +16,33 @@ headers = {
     "Connection": "keep-alive" # 연결 유지 → 스트림 연결 유지
 }
 
-@router.post("/stream")
-async def chat_stream(body: StreamRequest, request: Request):
-    print('body', body)
-    print('request', request)
+def get_chat_stream_service(ollama: AsyncOpenAI = Depends(get_ollama)) -> ChatStreamService:
+    return ChatStreamService(ollama)
 
-    # async def agen():
+@router.post("/")
+async def chat_stream(
+    body: StreamRequest,
+    request: Request,
+    svc: ChatStreamService = Depends(get_chat_stream_service)
+):
+
+    # async def safe_generator():
     #     try:
     #         async for chunk in svc.stream(body.question, request):
     #             yield chunk
-    #     except (ClientDisconnect, asyncio.CancelledError):
-    #         # 취소 신호 수신
-    #         return
-    # return StreamingResponse(agen(), media_type="text/event-stream")
+    #     except ClientDisconnect:
+    #         print("🔌 라우터: ClientDisconnect 감지")
+    #     except asyncio.CancelledError:
+    #         print("🔌 라우터: 요청 취소됨")
+    #     except Exception as e:
+    #         print(f"🔌 라우터: 예상치 못한 오류 {e}")
+    #         yield f"data: [스트림 오류]\n\n".encode("utf-8")
+
+    return StreamingResponse(
+        svc.stream(body.prompt),
+        headers=headers,
+        media_type="text/event-stream"
+    )
 
 # @router.post("/chat/stream")
 # async def stream_chat(body: AskRequest):

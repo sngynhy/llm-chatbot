@@ -1,6 +1,7 @@
 from pydantic_settings import BaseSettings, SettingsConfigDict
 from pydantic import Field
 
+# 환경변수 설정
 class Settings(BaseSettings):
     PROJECT_NAME: str = Field("Chatbot", alias="PROJECT_NAME")
     VERSION: str = Field("1.0.0", alias="VERSION")

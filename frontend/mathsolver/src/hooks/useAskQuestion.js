@@ -15,8 +15,8 @@ export function useAskQuestion({ onMessageSaved }) {
   const startedRef = useRef("");
   const { addChatId, addChatTitle, setRequestchatId } = useHistoryStore();
 
-  const askWithText = async (question, chatId, initialAsk, onBeforeStart) => {
-    if (!question.trim()) return;
+  const askWithText = async (prompt, chatId, initialAsk, onBeforeStart) => {
+    if (!prompt.trim()) return;
 
     setIsStreaming(true);
     bufferRef.current = "";
@@ -29,8 +29,8 @@ export function useAskQuestion({ onMessageSaved }) {
 
       const data = {
         chatId: chatId,
-        question: question,
-        title: question.slice(0, 18) || "New Chat",
+        prompt: prompt,
+        title: prompt.slice(0, 18) || "New Chat",
         titleIsLatex: false,
       };
       await fetchTextAnswer(data, signal, (chunk) => {
@@ -48,11 +48,11 @@ export function useAskQuestion({ onMessageSaved }) {
         setAssistant(bufferRef.current);
       });
 
-      onMessageSaved?.(chatId, question, bufferRef.current, false);
+      onMessageSaved?.(chatId, prompt, bufferRef.current, false);
     } catch (err) {
       if (err.name === "AbortError") {
         console.log("요청 취소", bufferRef.current);
-        onMessageSaved?.(chatId, question, bufferRef.current, false);
+        onMessageSaved?.(chatId, prompt, bufferRef.current, false);
       } else {
         console.log("요청 실패:", err);
         setError(

@@ -6,7 +6,7 @@ import time
 import logging
 from .config import settings
 from .routers import register_routers
-from .database.connection import lifespan
+from .lifespan.connection import lifespan
 
 # 로깅 설정
 logging.basicConfig(
@@ -18,12 +18,12 @@ logging.basicConfig(
 logger = logging.getLogger(__name__)
 
 tags_metadata = [
-    {"name": "chat", "description": "채팅/스트리밍 API"},
-    {"name": "history", "description": "대화 히스토리/타이틀"},
+    {"name": "chat_stream", "description": "스트리밍 API"},
+    {"name": "chats", "description": "채팅 내역"},
 ]
 
 def create_app() -> FastAPI:
-    """FastAPI 앱 생성 팩토리"""
+    # FastAPI 앱 생성 팩토리
     app = FastAPI(
         title=settings.PROJECT_NAME,
         version=settings.VERSION,

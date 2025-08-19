@@ -1,5 +1,5 @@
 from fastapi import APIRouter, HTTPException, Depends
-from app.database.connection import get_collection
+from app.lifespan.connection import get_collection
 from app.services.chat_service import ChatService
 from motor.motor_asyncio import AsyncIOMotorCollection
 from app.models import ChatTitle
@@ -9,6 +9,7 @@ router = APIRouter()
 def get_chat_service(col: AsyncIOMotorCollection = Depends(get_collection)) -> ChatService:
     return ChatService(col)
 
+
 @router.get(
     "/titles",
     response_model=list[ChatTitle],
@@ -17,12 +18,21 @@ def get_chat_service(col: AsyncIOMotorCollection = Depends(get_collection)) -> C
     responses={
         200: {"description": "성공", "content": {"application/json": {}}},
         500: {"description": "서버 오류"},
-})
+    }
+)
 async def get_all_titles_api(svc: ChatService = Depends(get_chat_service)):
     data = await svc.list_titles()
     return data
 
-@router.get("/{chat_id}")
+@router.get("/{chat_id}",
+    summary="채팅 내역 조회",
+    tags=["chats"],
+    responses={
+        200: {"description": "성공", "content": {"application/json": {}}},
+        404: {"description": "존재하지 않는 chat_id"},
+        500: {"description": "서버 오류"},
+    }
+)
 async def get_chat_api(chat_id: str, svc: ChatService = Depends(get_chat_service)):
     data = await svc.get_chat(chat_id)
     if not data:
@@ -37,7 +47,7 @@ async def get_chat_api(chat_id: str, svc: ChatService = Depends(get_chat_service
 @router.delete(
     "/{chat_id}",
     summary="채팅 내역 삭제",
-    tags=["chat"],
+    tags=["chats"],
     responses={
         200: {"description": "삭제 성공"},
         404: {"description": "존재하지 않는 chat_id"},
@@ -47,4 +57,4 @@ async def delete_chat_api(chat_id: str, svc: ChatService = Depends(get_chat_serv
         res = await svc.delete_chat(chat_id)
         if res.modified_count == 1:
             return {"status": "success"}
-        raise HTTPException(status_code=404, message=f"Chat {chat_id} not found")
+        raise HTTPException(status_code=404, detail=f"Chat {chat_id} not found")

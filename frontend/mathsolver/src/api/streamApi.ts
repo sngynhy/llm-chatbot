@@ -1,7 +1,7 @@
 import { StreamRequest } from "types/api";
 
 export const streamApi = (data: StreamRequest, signal: AbortSignal) => {
-  return fetch(`/api/chat/stream`, {
+  return fetch(`/api/chat-stream`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify(data),

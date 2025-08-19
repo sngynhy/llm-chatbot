@@ -1,7 +1,7 @@
-export type QuestionType = "text" | "file";
+export type PromptType = "text" | "file";
 
-export type NewQuestion = {
-  type: QuestionType;
+export type NewPrompt = {
+  type: PromptType;
   value: string | File;
 };
 
@@ -17,9 +17,9 @@ export type HistoryState = {
   requestchatId: string | null;
   setRequestchatId: (id: string | null) => void;
 
-  newQuestion: NewQuestion | null;
-  setNewQuestion: (question: NewQuestion) => void;
-  clearNewQuestion: () => void;
+  newPrompt: NewPrompt | null;
+  setNewPrompt: (prompt: NewPrompt) => void;
+  clearNewPrompt: () => void;
 
   chatIds: string[];
   chatTitles: ChatTitle[];

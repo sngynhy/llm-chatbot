@@ -16,7 +16,7 @@ import { useChatHistory } from "hooks/useChatHistory";
 import { generateChatId } from "utils/uuid";
 import { useStreamingStorage } from "hooks/useStreamingStorage";
 import { ChatMessage } from "types/reducer";
-import { NewQuestion } from "types/store";
+import { NewPrompt } from "types/store";
 
 function ChatPage({ isNewChat }: { isNewChat: boolean }) {
   const { chatId } = useParams();
@@ -25,9 +25,9 @@ function ChatPage({ isNewChat }: { isNewChat: boolean }) {
   const { initialAsk } = location.state || { initialAsk: false };
 
   const {
-    newQuestion,
-    setNewQuestion,
-    clearNewQuestion,
+    newPrompt,
+    setNewPrompt,
+    clearNewPrompt,
     currentchatId,
     setCurrentchatId,
     requestchatId,
@@ -43,18 +43,18 @@ function ChatPage({ isNewChat }: { isNewChat: boolean }) {
   const scrollTimeoutRef = useRef<NodeJS.Timeout | null>(null);
   const prevAssistantRef = useRef<string>("");
 
-  const { actions } = useChatHistory();
+  const { actions, error } = useChatHistory();
   const { isStreaming, assistant, askWithText, askWithFile, abort } =
     useAskQuestion({
       onMessageSaved: (
         chatId: string,
-        question: string,
+        prompt: string,
         assistant: string,
         isLatex: boolean
       ) => {
         // 스트리밍 저장소에 실시간 응답 저장
         addMessage(chatId, assistant, "assistant", isLatex);
-        if (newQuestion) clearNewQuestion();
+        if (newPrompt) clearNewPrompt();
       },
     });
 
@@ -116,12 +116,12 @@ function ChatPage({ isNewChat }: { isNewChat: boolean }) {
 
     // 새 질문 페이지에서 넘어온 경우 질문 전송
     if (initialAsk && isFirstRender.current) {
-      if (!newQuestion) {
+      if (!newPrompt) {
         navigate("/");
         return;
       }
 
-      const { type, value } = newQuestion;
+      const { type, value } = newPrompt;
       if (type === "text") {
         askTextQuestion(value as string);
       } else {
@@ -129,7 +129,7 @@ function ChatPage({ isNewChat }: { isNewChat: boolean }) {
       }
       isFirstRender.current = false;
     }
-  }, [newQuestion, initialAsk, isNewChat]);
+  }, [newPrompt, initialAsk, isNewChat]);
 
   // 자동 스크롤 함수
   const smartScrollToBottom = useCallback(() => {
@@ -193,14 +193,14 @@ function ChatPage({ isNewChat }: { isNewChat: boolean }) {
   }, [chatMessages, streamMessages, chatId, isNewChat]);
 
   const askNewQuestion = useCallback(
-    (question: string, file: File) => {
-      // console.log('🎃 askNewQuestion', question);
+    (prompt: string, file: File) => {
+      // console.log('🎃 askNewQuestion', prompt);
 
-      const param: NewQuestion = {
+      const param: NewPrompt = {
         type: !file ? "text" : "file",
-        value: !file ? question : file,
+        value: !file ? prompt : file,
       };
-      setNewQuestion(param);
+      setNewPrompt(param);
       const chatId = generateChatId();
       setCurrentchatId(chatId);
       navigate(`/chat/${chatId}`, { state: { initialAsk: true } });
@@ -209,13 +209,13 @@ function ChatPage({ isNewChat }: { isNewChat: boolean }) {
   );
 
   const askTextQuestion = useCallback(
-    async (question: string) => {
-      console.log("askQuestion", question);
+    async (prompt: string) => {
+      console.log("askQuestion", prompt);
 
-      await askWithText(question, chatId, initialAsk, () => {
+      await askWithText(prompt, chatId, initialAsk, () => {
         setRequestchatId(chatId);
         // 스트리밍 저장소에 실시간 질문 저장
-        addMessage(chatId, question, "user");
+        addMessage(chatId, prompt, "user");
       });
     },
     [chatId, initialAsk, askWithText, addMessage]
@@ -252,7 +252,7 @@ function ChatPage({ isNewChat }: { isNewChat: boolean }) {
         isStreaming={isStreaming}
         onSubmit={
           isNewChat
-            ? (question: string) => askNewQuestion(question, undefined)
+            ? (prompt: string) => askNewQuestion(prompt, undefined)
             : askTextQuestion
         }
         onFileSubmit={

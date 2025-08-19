@@ -11,7 +11,7 @@ import { RiSendPlaneFill } from "react-icons/ri";
 interface ChatInputAreaProps {
   isNewChat: boolean;
   isStreaming: boolean;
-  onSubmit: (question: string) => void;
+  onSubmit: (prompt: string) => void;
   onFileSubmit: (file: File) => void;
   cancelSubmit: () => void;
 }
@@ -24,7 +24,7 @@ export const ChatInputArea = ({
   cancelSubmit,
 }: ChatInputAreaProps) => {
   const [isHovered, setIsHovered] = useState(false);
-  const [question, setQuestion] = useState("");
+  const [prompt, setPrompt] = useState("");
   const [file, setFile] = useState(null);
   const [isLatex, setIsLatex] = useState(false);
   const inputRef = useRef(null);
@@ -49,7 +49,7 @@ export const ChatInputArea = ({
     }
 
     // 유효성 검사
-    if (!file && !question.trim()) {
+    if (!file && !prompt.trim()) {
       inputRef.current?.focus();
       return;
     }
@@ -62,8 +62,8 @@ export const ChatInputArea = ({
     }
 
     // 텍스트 전송
-    onSubmit(question);
-    setQuestion("");
+    onSubmit(prompt);
+    setPrompt("");
   };
 
   return (
@@ -94,8 +94,8 @@ export const ChatInputArea = ({
       ) : (
         <input
           ref={inputRef}
-          value={isStreaming ? "" : question}
-          onChange={(e) => setQuestion(e.target.value)}
+          value={isStreaming ? "" : prompt}
+          onChange={(e) => setPrompt(e.target.value)}
           disabled={isStreaming}
           placeholder="질문을 입력하세요"
         />
@@ -121,7 +121,7 @@ export const ChatInputArea = ({
         <IconButton
           type="submit"
           color={mainColor}
-          disabled={!question.trim() && !file}
+          disabled={!prompt.trim() && !file}
         >
           <RiSendPlaneFill />
         </IconButton>

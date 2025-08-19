@@ -1,7 +1,6 @@
 # Flask (backend)
 venv/
-backend/flask-server
-backend/fastapi-server/venv
+backend/flask-server/
 __pycache__/
 *.pyc
 

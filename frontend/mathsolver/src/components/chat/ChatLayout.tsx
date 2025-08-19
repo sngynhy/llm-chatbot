@@ -41,7 +41,7 @@ export const ChatContainer = styled.div<ChatContainerProps>`
     margin: 2rem 0;
   }
 
-  & > #question {
+  & > #prompt {
     display: flex;
     justify-content: space-between;
     background-color: white;

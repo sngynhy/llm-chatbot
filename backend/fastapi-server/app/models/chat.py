@@ -25,9 +25,9 @@ class ChatTitle(BaseModel):
     titleIsLatex: bool
 
 class StreamRequest(BaseModel):
-    question: str
+    prompt: str
     chatId: str
-    title: str
+    title: Optional[str] = None
 
 class Message(BaseModel):
     role: str

@@ -1,6 +1,6 @@
 export type StreamRequest = {
   chatId: string;
-  question: string;
+  prompt: string;
   title: string;
   titleIsLatex: boolean;
 };

@@ -1,7 +1,7 @@
 // src/store/useHistoryStore.ts
 import { create } from "zustand";
 import { persist, devtools } from "zustand/middleware";
-import { NewQuestion, ChatTitle, HistoryState } from "types/store";
+import { NewPrompt, ChatTitle, HistoryState } from "types/store";
 
 export const useHistoryStore = create(
   devtools<HistoryState>(
@@ -14,9 +14,9 @@ export const useHistoryStore = create(
       setRequestchatId: (chatId: string | null) =>
         set({ requestchatId: chatId }),
 
-      newQuestion: null,
-      setNewQuestion: (question: NewQuestion) => set({ newQuestion: question }),
-      clearNewQuestion: () => set({ newQuestion: null }),
+      newPrompt: null,
+      setNewPrompt: (prompt: NewPrompt) => set({ newPrompt: prompt }),
+      clearNewPrompt: () => set({ newPrompt: null }),
 
       chatIds: [],
       chatTitles: [],

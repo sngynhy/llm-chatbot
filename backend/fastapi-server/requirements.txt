@@ -2,7 +2,6 @@ fastapi==0.115.13
 uvicorn[standard]==0.34.3
 python-multipart==0.0.20
 openai==1.92.2
-pymongo==4.13.2
 pix2tex[api]==0.1.4
 easyocr==1.7.2
 pillow==11.2.1
@@ -13,3 +12,4 @@ pydantic==2.5.0
 aiofiles==23.2.1
 motor==3.8.0
 pydantic-settings==2.1.0
+crewai==0.10.0
