@@ -25,6 +25,7 @@ class ChatTitle(BaseModel):
     titleIsLatex: bool
 
 class StreamRequest(BaseModel):
+    userId: Optional[str] = "user1"
     prompt: str
     chatId: str
     title: Optional[str] = None

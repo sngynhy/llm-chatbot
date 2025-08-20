@@ -14,6 +14,9 @@ class Settings(BaseSettings):
     OLLAMA_BASE_URL: str = Field("http://localhost:11434/v1/chat/completions", alias="OLLAMA_BASE_URL")
     OLLAMA_API_KEY: str = Field(..., alias="OLLAMA_API_KEY")
 
+    REDIS_URL: str = Field("redis://localhost:6379", alias="REDIS_URL")
+    REDIS_TTL_SECONDS: int = Field(3600, alias="REDIS_TTL_SECONDS")
+
     model_config = SettingsConfigDict(env_file=".env", env_file_encoding="utf-8", extra="ignore")
 
 settings = Settings()

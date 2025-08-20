@@ -1,9 +1,11 @@
 from fastapi import APIRouter, Request, Depends
 from fastapi.responses import StreamingResponse
 from app.models import StreamRequest
-from app.services import ChatStreamService
+from app.services import ChatService, ChatStreamService
 from openai import AsyncOpenAI
-from app.lifespan.connection import get_ollama
+from app.lifespan.connection import get_ollama, get_collection, get_redis
+from motor.motor_asyncio import AsyncIOMotorCollection
+from redis.asyncio import Redis
 
 router = APIRouter()
 
@@ -16,8 +18,12 @@ headers = {
     "Connection": "keep-alive" # 연결 유지 → 스트림 연결 유지
 }
 
-def get_chat_stream_service(ollama: AsyncOpenAI = Depends(get_ollama)) -> ChatStreamService:
-    return ChatStreamService(ollama)
+def get_chat_stream_service(
+    ollama: AsyncOpenAI = Depends(get_ollama),
+    redis: Redis = Depends(get_redis),
+    col: AsyncIOMotorCollection = Depends(get_collection),
+) -> ChatStreamService:
+    return ChatStreamService(ollama, redis, ChatService(col))
 
 @router.post("/")
 async def chat_stream(
@@ -25,21 +31,8 @@ async def chat_stream(
     request: Request,
     svc: ChatStreamService = Depends(get_chat_stream_service)
 ):
-
-    # async def safe_generator():
-    #     try:
-    #         async for chunk in svc.stream(body.question, request):
-    #             yield chunk
-    #     except ClientDisconnect:
-    #         print("🔌 라우터: ClientDisconnect 감지")
-    #     except asyncio.CancelledError:
-    #         print("🔌 라우터: 요청 취소됨")
-    #     except Exception as e:
-    #         print(f"🔌 라우터: 예상치 못한 오류 {e}")
-    #         yield f"data: [스트림 오류]\n\n".encode("utf-8")
-
     return StreamingResponse(
-        svc.stream(body.prompt),
+        svc.stream(body, request),
         headers=headers,
         media_type="text/event-stream"
     )

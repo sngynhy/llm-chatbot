@@ -13,3 +13,4 @@ aiofiles==23.2.1
 motor==3.8.0
 pydantic-settings==2.1.0
 crewai==0.10.0
+redis==5.2.1

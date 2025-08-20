@@ -6,8 +6,8 @@ __pycache__/
 
 # React (frontend)
 # dependencies
-frontend/mathsolver/node_modules/
-frontend/mathsolver/build/
+frontend/react-app/node_modules/
+frontend/react-app/build/
 
 /.pnp
 .pnp.js
